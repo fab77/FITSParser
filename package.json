@@ -1,0 +1,34 @@
+{
+    "name": "fitsarser",
+    "sideEffects": false,
+    "version": "0.1.0",
+    "main": "index.js",
+    "private": true,
+    "scripts": {
+        "build": "webpack --config webpack.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fab77/FITSParser"
+    },
+    "module": "src/FITSParser.js",
+    "keywords": [],
+    "author": "Fabrizio Giordano (fab77)",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/fab77/FITSParser/issues"
+    },
+    "homepage": "https://github.com/fab77/FITSParser#readme",
+    "devDependencies": {
+        "@babel/core": "^7.11.4",
+        "@babel/plugin-proposal-class-properties": "^7.10.4",
+        "@babel/plugin-proposal-private-methods": "^7.10.4",
+        "@babel/preset-env": "^7.11.0",
+        "babel-loader": "^8.1.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "webpack-cli": "^4.8.0"
+    },
+    "dependencies": {
+    },
+    "description": "FITSParser library used in WCSLight."
+}
