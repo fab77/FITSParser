@@ -81,9 +81,10 @@ class ParsePayload{
 		this._tfPhysicalValues = undefined;
 		
 		this._tFunction = tFunction;
-		if (tFunction == undefined || tFunction == null || tFunctions.get(tFunction) == undefined){
+		if (!Constants.checkGivenTransferFunction(tFunction)){
 			this._tFunction = tFunctions.get("linear");
 		}
+		
 		
 		this._colorMap = colorMap;
 		if (colorMap == undefined || colorMap == null || colorsMap.get(colorMap) == undefined){

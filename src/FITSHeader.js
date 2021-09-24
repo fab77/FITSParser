@@ -13,6 +13,7 @@ class FITSHeader{
 	_keyValues;
 	_width;
 	_height;
+	_offset;
 
 	constructor(){
 		this._keyValues = new Map();
@@ -38,6 +39,10 @@ class FITSHeader{
 
 	get _height () {
 		return this._height;
+	}
+
+	set offset (offset) {
+		this._offset = offset;
 	}
 	
 }
