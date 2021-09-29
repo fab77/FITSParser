@@ -10,31 +10,25 @@
 
 class FitsLoader {
 	
-	_url;
-	_file;
 	_callback;
 	_data;
 	
 	
-	constructor (url, file, caller) {
+	constructor (uri, caller) {
 		
 		this._blob = null;
 		
 		this._caller = caller;
 		
-		if (url !== undefined && url != null){
-			this._url = url;
-			this.loadFITSFromURL();
-		}else if (file !== undefined && file != null){
-			this._file = file;
-			this.loadFITSFromFile(file);
-		}else{
-			throw 'No file nor url passed.';
+		if (uri.substring(0,5).toLowerCase().includes("http")) {
+			this.loadFITSFromURL(uri);
+		} else {
+			this.loadFITSFromFile(uri);
 		}
-		
+
 	}
 
-	loadFITSFromURL () {
+	loadFITSFromURL (url) {
 		
 		let self = this;
 		
@@ -47,7 +41,7 @@ class FitsLoader {
 	    xhr.onload = function() {
 	    	self._caller.onFitsLoaded(xhr.responseText);
 	    }
-	    xhr.open("GET", this._url, true);
+	    xhr.open("GET", url, true);
 		xhr.send(null);
 		
 	}	

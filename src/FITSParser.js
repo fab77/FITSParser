@@ -17,20 +17,15 @@ class FITSParser {
     _encodedFitsData;
     _img;
 
-    constructor(url, localFile, callback, in_colorMap, in_tFunction, pvMin, pvMax){
+    constructor(uri, callback, in_colorMap, in_tFunction, pvMin, pvMax){
 		this.THETAX = Hploc.asin( (K - 1)/K );
 		this.firstRun = true;
 		
 		this._colorMap = in_colorMap;
 		this._tFunction = in_tFunction;
 		
-		if (url !== undefined && url != null){
-			let fitsLoader = new FitsLoader(url, null, this);
-		}else if (localFile !== undefined && localFile != null){
-			let fitsLoader = new FitsLoader(null, localFile, this);	
-		}
+		let fitsLoader = new FitsLoader(uri, this);
 		
-
 	}
 
     onFitsLoaded (fitsData) {
@@ -55,8 +50,16 @@ class FITSParser {
 		let headerOffset = this._header.offset;
 
 		this._payload = new ParsePayload(this._header, data, headerOffset, this._colorMap, this._tFunction);
-		let image = this._payload.parse();
-		return image;
+		this._img = this._payload.parse();
+		
+	}
+
+	getImageData () {
+		return this._img;
+	}
+
+	getFITSHeader () {
+		this._header;
 	}
 
     changeTransferFunction(scaleFunction) {
