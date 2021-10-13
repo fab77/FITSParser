@@ -37,12 +37,19 @@ class FITSHeader{
 		return this._width;
 	}
 
-	get _height () {
+	get height () {
 		return this._height;
 	}
 
+	/**
+	 * @param {number} offset
+	 */
 	set offset (offset) {
 		this._offset = offset;
+	}
+
+	get offset () {
+		return this._offset;
 	}
 	
 }

@@ -9,57 +9,27 @@
  */
 
 import FITSHeader from './FITSHeader';
-import NAXISNotFoundException from './exceptions/NAXISNotFoundException';
 
 class ParseHeader {
 	
-	_header;
-	_data;
-	// _width;
-	// _height;
-	// _offset; // number of digit used for the header 
-	
+	_rawData;
 	
 	constructor (fitsFile){
 		
-		this._data = fitsFile;
-		// this._offset = 0;
-		this._header = new FITSHeader();
-		// this.parse();
+		this._rawData = fitsFile;
 		
 	}
-	
-	getValue (key) {
-		return this._header.getValue(key);
-	}
-	
-	
-	get header () {
-		return this._header;
-	}
-	
-	// get offset (){
-	// 	return this._offset;
-	// }
-	
-	// get width (){
-	// 	return this._width;
-	// }
-	
-	// get height (){
-	// 	return this._height;
-	// }
-	
 	
 	parse () {
-		
-		let headerByteData = new Uint8Array(this._data, 0, 2880);
+		let FITSheader = new FITSHeader();
+		// only one header block (2880) allowed atm. TODO allow multiple header blocks
+		let headerByteData = new Uint8Array(this._rawData, 0, 2880);
 		let textDecoder = new TextDecoder('iso-8859-1');
 		
 		// setting BZERO and BSCALE default values.
-		this._header.setHeaderItem("BZERO", 0);
-		this._header.setHeaderItem("BSCALE", 1);
-		this._header.setHeaderItem("BLANK", undefined);
+		FITSheader.setHeaderItem("BZERO", 0);
+		FITSheader.setHeaderItem("BSCALE", 1);
+		FITSheader.setHeaderItem("BLANK", undefined);
 
 		for (let i = 0; i < 2880/80; i++) {
 			let u8line = new Uint8Array(headerByteData.slice(i*80, i*80 + 80));
@@ -81,30 +51,17 @@ class ParseHeader {
 
 			}
 
-			this._header.setHeaderItem(key, val);
+			FITSheader.setHeaderItem(key, val);
 
 			console.log(line);
 			if (key == 'END') {
 				break;
 			}
 		}
-		
-		// if (typeof this._header.getValue("NAXIS1") == "number") {
-		// 	this._width = this._header.getValue("NAXIS1");
-		// } else {
-		// 	throw new NAXISNotFoundException("NAXIS1");
-		// }
-		// if (typeof this._header.getValue("NAXIS2") == "number") {
-		// 	this._height = this._header.getValue("NAXIS2");
-		// } else {
-		// 	throw new NAXISNotFoundException("NAXIS2");
-		// }
 
-		// TODO handle headers containing more than 1 block of 2880 bytes
-		// this._offset = 2880;
-		this._header.offset = 2880;
+		FITSheader.offset = 2880;
 		console.debug("header offset in bytes: "+this._offset);
-		return this._header;
+		return FITSheader;
 	}
 	
 }

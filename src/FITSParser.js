@@ -11,47 +11,50 @@ import FitsLoader from "./FitsLoader";
 
 class FITSParser {
 
-    _header;
-    _payload;
+    _FITSheader;
+    _payloadParser;
 
-    _encodedFitsData;
     _img;
 
-    constructor(uri, callback, in_colorMap, in_tFunction, pvMin, pvMax){
-		this.THETAX = Hploc.asin( (K - 1)/K );
-		this.firstRun = true;
+    constructor(uri, in_colorMap, in_tFunction, pvMin, pvMax){
+
 		
 		this._colorMap = in_colorMap;
 		this._tFunction = in_tFunction;
+		this._pvMin = pvMin;
+		this._pvMax = pvMax;
 		
 		let fitsLoader = new FitsLoader(uri, this);
 		
 	}
 
     onFitsLoaded (fitsData) {
-		this._encodedFitsData = fitsData;
-		this._img = this.processFits(this._encodedFitsData);
-		
-		// this._inProjection = ProjectionFactory.getProjection(constants.PROJECTIONS.HEALPIX);
-		// let nside = Math.pow(2, this._header.getValue('ORDER'));
-		// this._inProjection.init(nside, this._header.getValue('NPIX'), this._header.getValue('NAXIS1'),this._header.getValue('NAXIS2'))
 
-		// this._callback(this._img, this._payload._PVMIN, this._payload._PVMAX);
+		this.processFits(this.fitsData);
 		
 	}
 
     processFits (data) {
 
-		let parseHeader = new ParseHeader(data);
-        this._header = parseHeader.parse();
-
-		this._fitsWidth = this._header.width;
-		this._fitsHeight = this._header.height;
-		let headerOffset = this._header.offset;
-
-		this._payload = new ParsePayload(this._header, data, headerOffset, this._colorMap, this._tFunction);
-		this._img = this._payload.parse();
+		let headerParser = new ParseHeader(data);
+        this._FITSheader = headerParser.parse();
 		
+		this._payloadParser = new ParsePayload(this._FITSheader, data);
+		this._physicalValues = this._payloadParser.parse();
+		return this._physicalValues;
+
+	}
+
+	changeTransferFunction(scaleFunction) {
+		
+		this._payloadParser.applyScaleFunction(scaleFunction);
+		// this._img = this._payloadParser.img;
+		
+	}
+
+
+	writeFITS(header, data) {
+
 	}
 
 	getImageData () {
@@ -59,27 +62,22 @@ class FITSParser {
 	}
 
 	getFITSHeader () {
-		this._header;
+		this._FITSheader;
 	}
 
-    changeTransferFunction(scaleFunction) {
-		
-		this._payload.applyScaleFunction(scaleFunction);
-		this._img = this._payload.img;
-		
-	}
+    
 	
 	changeColorMap(colorMap) {
 		
-		this._payload.changeColorMap(colorMap);
-		this._img = this._payload.img;
+		this._payloadParser.changeColorMap(colorMap);
+		this._img = this._payloadParser.img;
 		
 	}
 	
 	changeInverse(inverse){
 		
-		this._payload.changeInverse(inverse);
-		this._img = this._payload.img;
+		this._payloadParser.changeInverse(inverse);
+		this._img = this._payloadParser.img;
 		
 	}
 
