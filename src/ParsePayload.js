@@ -77,7 +77,8 @@ class ParsePayload{
 			this._PVMAX = pv_max;
 		}
 		
-		this._physicalValues = new Array(this._naxis1 * this._naxis2);
+		// this._physicalValues = new Array(this._naxis1 * this._naxis2);
+		this._physicalValues = new Array(this._naxis2);
 		
 		this._tfPhysicalValues = undefined;
 		
@@ -132,8 +133,18 @@ class ParsePayload{
 				i++;
 			}
 		}
+
 	}
 
+
+	/**
+	 * 
+	 * @param {*} in_min 
+	 * @param {*} in_max 
+	 * @returns Matrix (naxis1 x naxis2) with physical values
+	 * 
+	 * TODO wouldn't be better to return pixel values?
+	 */
 	parseData (in_min, in_max) {
 		
 		if (in_min !== undefined && in_min !== null &&
@@ -152,20 +163,31 @@ class ParsePayload{
 		let bytesXelem = Math.abs(this._bitpix / 8);
 		let pxLength = this.u8data.byteLength / bytesXelem;
 
-		let j = 0;		
-		while (j < pxLength) {
+		let k = 0;
+		// let p = 0;
+		let c, r;
+		while (k < pxLength) {
 
-			px_val = this.extractPixelValue(bytesXelem*j);
+			c = Math.floor(k / this._naxis1); // cols
+			r = k - c * this._naxis1; // row
+
+			if (r === 0) {
+				this._physicalValues[c] = new Array(this._naxis1);
+			}
+
+			px_val = this.extractPixelValue(bytesXelem * k);
 			ph_val = this.pixel2physicalValue(px_val);
 			
 			if( ph_val < Number.MIN_VALUE || ph_val > Number.MAX_VALUE ||
 				ph_val <= this._PVMIN || ph_val >= this._PVMAX) {
 					// setting out of range pixels values to phisical BLANK value
-					this._physicalValues[p++] = this._BLANK_pv;
+					// this._physicalValues[p++] = this._BLANK_pv;  // unidimensional
+					this._physicalValues[c][r] = this._BLANK_pv;		// bidimensional
 			} else {
-				this._physicalValues[p++] = ph_val;
+				// this._physicalValues[p++] = ph_val;  // unidimensional
+				this._physicalValues[c][r] = ph_val;
 			}
-			j++;
+			r++;
 		}
 
 		return this._physicalValues;

@@ -16,13 +16,13 @@ class FITSParser {
 
     _img;
 
-    constructor(uri, in_colorMap, in_tFunction, pvMin, pvMax){
+    constructor(uri, pvMin, pvMax){
 
 		
 		this._colorMap = in_colorMap;
 		this._tFunction = in_tFunction;
-		this._pvMin = pvMin;
-		this._pvMax = pvMax;
+		this._pvMin = (pvMin !== undefined ? pvMin : undefined);
+		this._pvMax = (pvMax !== undefined ? pvMax : undefined);
 		
 		let fitsLoader = new FitsLoader(uri, this);
 		
@@ -40,18 +40,25 @@ class FITSParser {
         this._FITSheader = headerParser.parse();
 		
 		this._payloadParser = new ParsePayload(this._FITSheader, data);
-		this._physicalValues = this._payloadParser.parse();
-		return this._physicalValues;
+		this._physicalValues = this._payloadParser.parse(this._pvMin, this._pvMax);
+
+		
+		return {
+			"header": this._FITSheader,
+			"data": this._physicalValues
+			};
 
 	}
+
+
 
 	changeTransferFunction(scaleFunction) {
 		
 		this._payloadParser.applyScaleFunction(scaleFunction);
-		// this._img = this._payloadParser.img;
+		this._img = this._payloadParser.img;
 		
 	}
-
+	
 
 	writeFITS(header, data) {
 
