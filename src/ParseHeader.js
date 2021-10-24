@@ -12,25 +12,20 @@ import FITSHeader from './FITSHeader';
 
 class ParseHeader {
 	
-	_rawData;
+	// _rawData;
 	
-	constructor (fitsFile){
-		
-		this._rawData = fitsFile;
-		
-	}
+	// constructor (fitsFile){
+	// 	this._rawData = fitsFile;
+	// }
 	
-	parse () {
-		let FITSheader = new FITSHeader();
-		// only one header block (2880) allowed atm. TODO allow multiple header blocks
-		let headerByteData = new Uint8Array(this._rawData, 0, 2880);
+
+	static parse (rawdata) {
+		let header = new FITSHeader();
+		// only one header block (2880) allowed atm. 
+		// TODO handle multiple header blocks
+		let headerByteData = new Uint8Array(rawdata, 0, 2880);
 		let textDecoder = new TextDecoder('iso-8859-1');
 		
-		// setting BZERO and BSCALE default values.
-		FITSheader.setHeaderItem("BZERO", 0);
-		FITSheader.setHeaderItem("BSCALE", 1);
-		FITSheader.setHeaderItem("BLANK", undefined);
-
 		for (let i = 0; i < 2880/80; i++) {
 			let u8line = new Uint8Array(headerByteData.slice(i*80, i*80 + 80));
 			let line = textDecoder.decode(u8line);
@@ -42,26 +37,24 @@ class ParseHeader {
 			let val = textDecoder.decode(u8val).trim();
 
 			if(val.indexOf("'") !== 0 && key !== "SIMPLE"){
-				
-				if(val.indexOf('.') >= 0) {
-					val = parseFloat(val); // Floating point
-				}else {
-					val = parseInt(val); // Integer
+				if(val.indexOf('.') >= 0) { // case when is floating point
+					val = parseFloat(val); 
+				}else { // Integer oterwise
+					val = parseInt(val); 
 				}
-
 			}
 
-			FITSheader.setHeaderItem(key, val);
+			header.set(key, val);
 
-			console.log(line);
+			// console.log(line);
 			if (key == 'END') {
 				break;
 			}
 		}
 
-		FITSheader.offset = 2880;
-		console.debug("header offset in bytes: "+this._offset);
-		return FITSheader;
+		// header.offset = 2880;
+		// console.debug("header offset in bytes: "+this._offset);
+		return header;
 	}
 	
 }

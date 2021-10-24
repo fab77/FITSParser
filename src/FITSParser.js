@@ -8,6 +8,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 import FitsLoader from "./FitsLoader";
+import ParsePayload from "./ParsePayload";
 
 class FITSParser {
 
@@ -16,76 +17,31 @@ class FITSParser {
 
     _img;
 
-    constructor(uri, pvMin, pvMax){
-
+    constructor(uri){
 		
-		this._colorMap = in_colorMap;
-		this._tFunction = in_tFunction;
-		this._pvMin = (pvMin !== undefined ? pvMin : undefined);
-		this._pvMax = (pvMax !== undefined ? pvMax : undefined);
-		
-		let fitsLoader = new FitsLoader(uri, this);
-		
+		let fitsraw = FitsLoader().load(uri);
+		this.processFits(fitsraw);
+	
 	}
 
-    onFitsLoaded (fitsData) {
+    processFits (rawdata) {
 
-		this.processFits(this.fitsData);
+		// let headerParser = new ParseHeader(data);
+        this._header = ParseHeader.parse(rawdata);
 		
-	}
-
-    processFits (data) {
-
-		let headerParser = new ParseHeader(data);
-        this._FITSheader = headerParser.parse();
-		
-		this._payloadParser = new ParsePayload(this._FITSheader, data);
-		this._physicalValues = this._payloadParser.parse(this._pvMin, this._pvMax);
+		this._payloadParser = new ParsePayload(this._FITSheader, rawdata);
+		this._physicalValues = this._payloadParser.parse();
 
 		
 		return {
-			"header": this._FITSheader,
+			"header": this._header,
 			"data": this._physicalValues
 			};
 
 	}
 
+	writeFITS(header, rawdata) {
 
-
-	changeTransferFunction(scaleFunction) {
-		
-		this._payloadParser.applyScaleFunction(scaleFunction);
-		this._img = this._payloadParser.img;
-		
-	}
-	
-
-	writeFITS(header, data) {
-
-	}
-
-	getImageData () {
-		return this._img;
-	}
-
-	getFITSHeader () {
-		this._FITSheader;
-	}
-
-    
-	
-	changeColorMap(colorMap) {
-		
-		this._payloadParser.changeColorMap(colorMap);
-		this._img = this._payloadParser.img;
-		
-	}
-	
-	changeInverse(inverse){
-		
-		this._payloadParser.changeInverse(inverse);
-		this._img = this._payloadParser.img;
-		
 	}
 
 }

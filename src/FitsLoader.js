@@ -14,6 +14,69 @@ class FitsLoader {
 	_data;
 	
 	
+	static load(uri) {
+
+		if (uri.substring(0,5).toLowerCase().includes("http")) {
+			let promloader = new Promise(function(loadSuccess, loadError){
+				let req = new XMLHttpRequest();
+				// req.overrideMimeType("text/plain; charset=x-user-defined");
+				req.overrideMimeType("text/plain; charset=iso-8859-1");
+				// req.overrideMimeType("text/plain; charset=UTF-8");
+				req.open("GET", uri, true);
+				
+				req.onload = function() {
+					if (req.status == 200){
+						loadSuccess(req.responseText);
+					}else{
+						loadError("File not loaded");
+					}
+				}
+				req.send();
+			});
+			
+			promloader.then(FitsLoader.fitsLoaded, FitsLoader.fitsLoadError);
+
+		} else {
+			let promloader = new Promise(function(loadSuccess, loadError){
+
+				let chunkSize = 1024 * 1024 * 16; // 16MB Chunk size
+				let fileSize = file.size;
+				let currentChunk = 1;
+				let totalChunks = Math.ceil((fileSize/chunkSize), chunkSize);
+
+				while (currentChunk <= totalChunks) {
+
+					let offset = (currentChunk-1) * chunkSize;
+					let currentFilePart = file.slice(offset, (offset+chunkSize));
+
+					let reader = new FileReader();
+					// reader.readAsText(currentFilePart, "iso-8859-1");
+					reader.readAsArrayBuffer(currentFilePart);
+
+					reader.onload = function (e) {
+						if (reader.readyState == 2) {
+							loadSuccess(req.responseText);
+						} else if (reader.error) {
+							loadError("File not loaded");
+						}
+					}
+					currentChunk++;
+				}
+			});
+
+			promloader.then(FitsLoader.fitsLoaded, FitsLoader.fitsLoadError);
+		}
+	}
+
+	static fitsLoadError(errstr){
+		console.error(errstr);
+	}
+
+	static fitsLoaded(fitsdata){
+		return fitsdata;
+	}
+
+	/** @deprecated */
 	constructor (uri, caller) {
 		
 		this._blob = null;
@@ -28,6 +91,8 @@ class FitsLoader {
 
 	}
 
+
+	/** @deprecated */
 	loadFITSFromURL (url) {
 		
 		let self = this;
@@ -46,7 +111,7 @@ class FitsLoader {
 		
 	}	
 
-
+	/** @deprecated */
 	loadFITSFromFile (file) {
 
 		let self = this;
