@@ -18,6 +18,7 @@ class FITSHeader extends Map {
 	_offset;
 
 	constructor(){
+		super();
 		// this._keyValues = new Map();
 		this.set("BZERO", 0);
 		this.set("BSCALE", 1);

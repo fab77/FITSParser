@@ -7,6 +7,8 @@
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
+ import fetch from "node-fetch";
+import fs from "fs";
 
 class FitsLoader {
 	
@@ -14,7 +16,9 @@ class FitsLoader {
 	_data;
 	
 	
-	static load(uri) {
+	static load(uri, caller) {
+
+		let myfile;
 
 		if (uri.substring(0,5).toLowerCase().includes("http")) {
 			let promloader = new Promise(function(loadSuccess, loadError){
@@ -37,35 +41,62 @@ class FitsLoader {
 			promloader.then(FitsLoader.fitsLoaded, FitsLoader.fitsLoadError);
 
 		} else {
-			let promloader = new Promise(function(loadSuccess, loadError){
 
-				let chunkSize = 1024 * 1024 * 16; // 16MB Chunk size
-				let fileSize = file.size;
-				let currentChunk = 1;
-				let totalChunks = Math.ceil((fileSize/chunkSize), chunkSize);
+			
 
-				while (currentChunk <= totalChunks) {
+			// // FileReader doesn't work directly with filesystem. It works with <input> and drag&drop
+			// let promloader = new Promise(function(loadSuccess, loadError){
 
-					let offset = (currentChunk-1) * chunkSize;
-					let currentFilePart = file.slice(offset, (offset+chunkSize));
+			// 	let chunkSize = 1024 * 1024 * 16; // 16MB Chunk size
+			// 	let fileSize = file.size;
+			// 	let currentChunk = 1;
+			// 	let totalChunks = Math.ceil((fileSize/chunkSize), chunkSize);
 
-					let reader = new FileReader();
-					// reader.readAsText(currentFilePart, "iso-8859-1");
-					reader.readAsArrayBuffer(currentFilePart);
+			// 	while (currentChunk <= totalChunks) {
 
-					reader.onload = function (e) {
-						if (reader.readyState == 2) {
-							loadSuccess(req.responseText);
-						} else if (reader.error) {
-							loadError("File not loaded");
-						}
-					}
-					currentChunk++;
+			// 		let offset = (currentChunk-1) * chunkSize;
+			// 		let currentFilePart = file.slice(offset, (offset+chunkSize));
+
+			// 		let reader = new FileReader();
+			// 		reader.readAsArrayBuffer(currentFilePart);
+
+			// 		reader.onload = function (e) {
+			// 			if (reader.readyState == 2) {
+			// 				loadSuccess(req.responseText);
+			// 			} else if (reader.error) {
+			// 				loadError("File not loaded");
+			// 			}
+			// 		}
+			// 		currentChunk++;
+			// 	}
+			// });
+
+			// promloader.then(FitsLoader.fitsLoaded, FitsLoader.fitsLoadError);
+			// let p = new Promise(function (resolve, reject) {
+			// 	fs.readFile(uri, null , (err, data) => {
+			// 		if (err) {
+			// 		  console.error(err);
+			// 			reject(err);
+			// 		} else {
+			// 			console.log("File read");
+			// 			resolve(data);
+			// 		}
+					
+			// 	  });	
+			// });
+
+			// return p;
+			
+			fs.readFile(uri, null , (err, data) => {
+				if (err) {
+				  console.error(err)
+				  return;
 				}
-			});
-
-			promloader.then(FitsLoader.fitsLoaded, FitsLoader.fitsLoadError);
+				console.log("File read");
+				caller.processFits(data, caller);
+			  })
 		}
+		// return myfile;
 	}
 
 	static fitsLoadError(errstr){

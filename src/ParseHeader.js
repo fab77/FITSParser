@@ -8,7 +8,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import FITSHeader from './FITSHeader';
+import FITSHeader from './FITSHeader.js';
 
 class ParseHeader {
 	

@@ -8,14 +8,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import ParseUtils from './ParseUtils';
-import ColorMaps from './ColorMaps';
-import Constants from './Constants';
-import ColorMapNotFound from './exceptions/ColorMapNotFound';
-import TransferFunctionNotFound from './exceptions/TransferFunctionNotFound';
-import TransferFunctionNotImplemented from './exceptions/TransferFunctionNotImplemented';
-
-
+import ParseUtils from './ParseUtils.js';
 
 // let colorsMap = new Map();
 // colorsMap.set("grayscale","grayscale");
@@ -46,15 +39,16 @@ class ParsePayload{
 	 */
 	constructor (fitsheader, rawdata) {
 		
-		this.init(fitsheader);		
 		this._u8data = new Uint8Array(rawdata, fitsheader.offset);
+		this.init(fitsheader);		
+		
 		
 	}
 	
 	init (fitsheader) {
 
 		this._BZERO = fitsheader.get("BZERO");
-		this._BSCALE = fitsheader.ge("BSCALE");
+		this._BSCALE = fitsheader.get("BSCALE");
 		this._BLANK = fitsheader.get("BLANK");
 		// this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
 		this._BITPIX = fitsheader.get("BITPIX");
@@ -73,20 +67,21 @@ class ParsePayload{
 	computePhysicalMinAndMax () {
 		
 		let i = 0;
-		let bytesXelem = Math.abs(this._bitpix / 8);
+		let bytesXelem = Math.abs(this._BITPIX / 8);
 		let pxLength = this._u8data.byteLength / bytesXelem;
 		let px_val, ph_val;
-		let min, max;
+		let min = undefined;
+		let max = undefined;
 		while (i < pxLength){
 		
 			px_val = this.extractPixelValue(bytesXelem*i);
 			ph_val = this.pixel2physicalValue(px_val);
 
-			if (ph_val < this._DATAMIN) {
+			if (ph_val < min || min === undefined) {
 				min = ph_val;
 			}
 
-			if (ph_val > this._DATAMAX) {
+			if (ph_val > max || max === undefined) {
 				max = ph_val;
 			}				
 			i++;
@@ -114,8 +109,8 @@ class ParsePayload{
 		let pixelvalues = [];
 		while (k < pxLength) {
 
-			c = Math.floor(k / this._NAXIS1); // cols
-			r = k - c * this._NAXIS1; // row
+			r = Math.floor(k / this._NAXIS1); // row
+			c = k - r * this._NAXIS1; // col
 
 			if (r === 0) {
 				pixelvalues[c] = new Array(this._NAXIS1);
@@ -131,9 +126,9 @@ class ParsePayload{
 					pixelvalues[c][r] = this._BLANK;		// bidimensional
 			} else {
 				// this._physicalValues[p++] = ph_val;  // unidimensional
-				pixelvalues[c][r] = ph_val;
+				pixelvalues[c][r] = px_val;
 			}
-			r++;
+			k++;
 		}
 
 		return pixelvalues;
@@ -166,6 +161,9 @@ class ParsePayload{
 		return px_val;
 	}
 	
+	pixel2physicalValue(pxval) {
+		return this._BZERO + this._BSCALE * pxval;
+	}
 	// getPhysicalPixelValueFromScreenMouse(i, j){
 	// 	let idx =   ( (this._naxis2-j-1) * this._naxis1 ) + (i-1) ;		
 	// 	return this._tfPhysicalValues[idx];

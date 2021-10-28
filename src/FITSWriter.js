@@ -18,7 +18,7 @@
  * 
  */
 
-import ParseUtils from '../ParseUtils';
+import ParseUtils from './ParseUtils.js';
 
 class FITSWriter {
 
@@ -30,9 +30,9 @@ class FITSWriter {
 
     }
 
-    run (headerDetails) {
-        this.prepareHeader(headerDetails);
-        this.preparePayload(headerDetails.data);
+    run (header, rawdata) {
+        this.prepareHeader(header);
+        this.preparePayload(rawdata);
         this.prepareFITS();
     }
 
@@ -119,13 +119,20 @@ class FITSWriter {
 
     preparePayload (arrayData) {
 
-        this._payloadArray = new Array(arrayData.length * arrayData[0].length);
-        // this._payloadArray = new Uint8Array(arrayData.buffer, 0, arrayData.byteLength);
-        for (let i = 0; i < arrayData.length; i++) {
-            for (let j = 0; j < arrayData[0].length; j++) {
-                this._payloadArray.push(arrayData[i][j]);
-            }    
+
+        if (Array.isArray(arrayData[0].length)) {  // bidimensional input array
+            this._payloadArray = new Array(arrayData.length * arrayData[0].length);
+            // this._payloadArray = new Uint8Array(arrayData.buffer, 0, arrayData.byteLength);
+            for (let i = 0; i < arrayData.length; i++) {
+                for (let j = 0; j < arrayData[0].length; j++) {
+                    this._payloadArray.push(arrayData[i][j]);
+                }    
+            }
+        } else {    // unimensional input array
+            this._payloadArray = arrayData;
         }
+
+        
         // this._payloadArray = arrayData;
         
         // TODO TEST!!! Iterate over byte 2 by 2 and apply the 3's bit complement conversion:
@@ -152,7 +159,7 @@ class FITSWriter {
         bytes.set(this._headerArray, 0);
         bytes.set(this._payloadArray, this._headerArray.length);
 
-        let test = new Uint16Array(bytes.buffer);
+        // let test = new Uint16Array(bytes.buffer);
 
         // this._fitsData = test;
         this._fitsData = bytes;
