@@ -34,13 +34,99 @@ class ParseUtils {
 	// 	return long;
 	// }
 
+	static byteString(n) {
+		if (n < 0 || n > 255 || n % 1 !== 0) {
+			throw new Error(n + " does not fit in a byte");
+		}
+		return ("000000000" + n.toString(2)).substr(-8)
+	}
+
 	static parse32bitSinglePrecisionFloatingPoint (byte1, byte2, byte3, byte4) {
 		let long = (((((byte1 << 8) + byte2) << 8) + byte3) << 8) + byte4;
 		if (long < 0) long += 4294967296;
 		let float = (1.0+((long&0x007fffff)/0x0800000)) * Math.pow(2,((long&0x7f800000)>>23) - 127);
 		return float;
 	}
+
+
+	/** https://gist.github.com/Manouchehri/f4b41c8272db2d6423fa987e844dd9ac */
+	static parseFloatingPointFormat (bytes, ebits, fbits) {
+		
+		// console.log("parse64bitSinglePrecisionFloatingPoint3");
+		// Bytes to bits
+		var bits = [];
+		for (var i = bytes.length; i; i -= 1) {
+			var byte = bytes[i - 1];
+			for (var j = 8; j; j -= 1) {
+				bits.push(byte % 2 ? 1 : 0); byte = byte >> 1;
+			}
+		}
+		bits.reverse();
+		var str = bits.join('');
+		// console.log(str);
+		// Unpack sign, exponent, fraction
+		var bias = (1 << (ebits - 1)) - 1;
+		var s = parseInt(str.substring(0, 1), 2) ? -1 : 1;
+		var e = parseInt(str.substring(1, 1 + ebits), 2);
+		var f = parseInt(str.substring(1 + ebits), 2);
+		
+		// Produce number
+		if (e === (1 << ebits) - 1) {
+			return f !== 0 ? NaN : s * Infinity;
+		}
+		else if (e > 0) {
+			return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
+		}
+		else if (f !== 0) {
+			return s * Math.pow(2, -(bias-1)) * (f / Math.pow(2, fbits));
+		}
+		else {
+			return s * 0;
+		}
+	}
+
+
+
+	// static parse64bitSinglePrecisionFloatingPoint4 (byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8) {
+	// 	// console.log("parse64bitSinglePrecisionFloatingPoint4");
+	// 	// console.log(
+	// 	// 	ParseUtils.byteString(byte1) +""+ ParseUtils.byteString(byte2) +""+ ParseUtils.byteString(byte3) +""+ ParseUtils.byteString(byte4) 
+	// 	// 	+""+ ParseUtils.byteString(byte5) +""+ ParseUtils.byteString(byte6) +""+ ParseUtils.byteString(byte7) +""+ ParseUtils.byteString(byte8));
+	// 	let long = (((((((((((((byte1 << 8 ) | byte2) << 8) | byte3) << 8 ) | byte4) << 8) | byte5) << 8) | byte6) << 8) | byte7) << 8) | byte8;
+	// 	if (long < 0) long += 4503599627370496;
+	// 	// console.log(long.toString(2));
+	// 	var bias = (1 << (11 - 1)) - 1;
+	// 	var s = Math.pow ( -1, (byte1 & 0x80));
+	// 	var e = (((byte1 << 8) + byte2) & 0x7ff0) >> 4;
+		
+	// 	var fbytes = (((((byte2 << 8) | byte3) << 8 ) | byte4) << 8 ) | byte5 ;
+	// 	var f = ((fbytes & 0x0fffffffffffff) / Math.pow(2, 52));
+	// 	// console.log("bias: "+bias);
+	// 	// console.log("sign: "+ (s === 1) ? "0" : "1");
+	// 	// console.log("e: "+e.toString(2));
+	// 	// console.log("e: "+e);
+	// 	// console.log("fbytes: "+fbytes.toString(2));
+	// 	// console.log("f: "+f.toString(2));
+
+	// 	if (e === (1 << 11) - 1) {
+	// 		return f !== 0 ? NaN : s * Infinity;
+	// 	}
+	// 	else if (e > 0) {
+	// 		return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, 52));
+	// 	}
+	// 	else if (f !== 0) {
+	// 		return s * Math.pow(2, -(bias-1)) * (f / Math.pow(2, 52));
+	// 	}
+	// 	else {
+	// 		return s * 0;
+	// 	}
+	// }
 	
+	// static parse64bitSinglePrecisionFloatingPoint5 (bytes) {
+	// 	let float = new Float64Array(bytes.buffer);
+	// 	console.log(float);
+	// 	return float;
+	// }
 	
 	static generate16bit2sComplement (val) {
 		throw new TypeError("not implemented yet");

@@ -11,34 +11,31 @@
  import FITSWriter from "./FITSWriter.js";
  import ParsePayload from "./ParsePayload.js";
  import ParseHeader from "./ParseHeader.js";
-
-// import FitsLoader from "./FitsLoader";
-// import FITSWriter from "./FITSWriter";
-// import ParsePayload from "./ParsePayload";
-// import ParseHeader from "./ParseHeader";
-
-
+import {load} from "./FitsLoader2.js";
 class FITSParser {
 
 	_procdata;
 	_callback;
-    constructor(uri, callback){
+    constructor(uri, callback, observerlist){
 		this._procdata = undefined;
 		this._callback = callback;
-		// let data = FitsLoader.load(uri, this.processFits);
-		FitsLoader.load(uri, this);
-
 		
-		// this.processFits(data);
 		
-		// this.data = p.then(imgBuffer => {
-		// 	console.log("aooooo");
-		// 	this.data = this.processFits(imgBuffer);
-		// 	return this.data;
-		// }).catch(err => {
-		// 	console.error(err);
-		// });
-		// return this.data;
+		let loader = load(uri);
+		return loader
+			.then(data => 
+				this.processFits(data))
+			.then(fits => {
+				if (observerlist){
+					observerlist.forEach((observer) => {
+						observer.notify(fits);
+					});	
+				}
+				if (callback) {
+					callback(fits);
+				}
+				return fits;
+			});
 	}
 
     processFits (rawdata, caller) {
@@ -48,11 +45,11 @@ class FITSParser {
 		let payloadParser = new ParsePayload(header, rawdata);
 		let pixelvalues = payloadParser.parse();
 		
-		caller._procdata = {
-			"header": header,
-			"data": pixelvalues
-			};
-			caller._callback(caller._procdata);
+		this._procdata = pixelvalues;
+		return {
+				"header": header,
+				"data": pixelvalues
+				};
 
 	}
 

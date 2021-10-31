@@ -39,7 +39,11 @@ class ParsePayload{
 	 */
 	constructor (fitsheader, rawdata) {
 		
-		this._u8data = new Uint8Array(rawdata, fitsheader.offset);
+		// let offset = fitsheader.offset;
+		let buffer = rawdata.slice(fitsheader.offset);
+		this._u8data = new Uint8Array(buffer);
+		// this._u8data = new Uint8Array(rawdata, 2880);
+		// console.log(this._u8data.byteOffset);
 		this.init(fitsheader);		
 		
 		
@@ -139,23 +143,24 @@ class ParsePayload{
 	extractPixelValue(offset) {
 
 		let px_val = undefined; // pixel value
+		let px_val1, px_val2, px_val3, px_val4;
 		if (this._BITPIX == 16) { // 16-bit 2's complement binary integer
 			px_val = ParseUtils.parse16bit2sComplement(this._u8data[offset], this._u8data[offset+1]);
+		
 		} else if (this._BITPIX == 32) { // IEEE 754 half precision (float16) ?? 
 			px_val = ParseUtils.parse32bit2sComplement(this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]); 
+		
 		} else if (this._BITPIX == -32) { // 32-bit IEEE single-precision floating point
+			// px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]); 
+			px_val = ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 8), 8, 23);
 
-			// let p = new Float32Array(this.u8data.buffer, offset*4);
-
-			px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]); 
-			// if (px_val != 0){
-			// 	// long to float conversion
-			// 	px_val = (1.0+((px_val&0x007fffff)/0x0800000)) * Math.pow(2,((px_val&0x7f800000)>>23) - 127); 
-			// }
 		} else if (this._BITPIX == 64) { // 64-bit 2's complement binary integer 
-			throw new TypeError("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+			throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+		
 		} else if (this._BITPIX == -64) { // 64-bit IEEE double-precision floating point 
-			throw new TypeError("BITPIX=-64 -> IEEE double-precision floating point NOT supported yet.");
+			//https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+			px_val = ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 8), 11, 52);
+
 		}
 
 		return px_val;
