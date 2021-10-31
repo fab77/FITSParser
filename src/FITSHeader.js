@@ -12,14 +12,10 @@
 
 class FITSHeader extends Map {
 	
-	// _keyValues;
-	// _width;
-	// _height;
 	_offset;
 
 	constructor(){
 		super();
-		// this._keyValues = new Map();
 		this.set("BZERO", 0);
 		this.set("BSCALE", 1);
 		/* BLANK: The value field shall contain an integer that
@@ -30,16 +26,6 @@ class FITSHeader extends Map {
 		this._offset = 2880;
 	}
 	
-	// setHeaderItem(key, value){
-	// 	if (key === "NAXIS1") {
-	// 		this._width = value;
-	// 	} else if (key === "NAXIS2") {
-	// 		this._height = value;
-	// 	}
-	// 	this._keyValues.set(key, value);
-		
-	// }
-
 	get offset() {
 		return this._offset;
 	}

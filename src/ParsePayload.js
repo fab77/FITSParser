@@ -65,6 +65,8 @@ class ParsePayload{
 			let [min, max] = this.computePhysicalMinAndMax ();
 			this._DATAMAX = max;
 			this._DATAMIN = min;
+			fitsheader.set("DATAMAX", max);
+			fitsheader.set("DATAMIN", min);
 		}
 	}
 	
@@ -97,7 +99,6 @@ class ParsePayload{
 	 * 
 	 * @returns Matrix (naxis1 x naxis2) with physical values
 	 * 
-	 * TODO wouldn't be better to return pixel values? DONE!
 	 */
 	parse () {
 		
@@ -169,26 +170,7 @@ class ParsePayload{
 	pixel2physicalValue(pxval) {
 		return this._BZERO + this._BSCALE * pxval;
 	}
-	// getPhysicalPixelValueFromScreenMouse(i, j){
-	// 	let idx =   ( (this._naxis2-j-1) * this._naxis1 ) + (i-1) ;		
-	// 	return this._tfPhysicalValues[idx];
-	// }
-
-	// getPixelValueFromScreenMouse(i, j){
-
-	// 	let arr = undefined;
-	// 	let idx =   ( (this._naxis2-j-1) * this._naxis1 ) + (i-1) ;
-	// 	if (this._bitpix == 16) {
-	// 		// return [this.u8data[2*idx], this.u8data[2*idx+1]];
-	// 		arr = this.u8data.slice(2*idx, 2*idx+2);
-	// 	} else if (this._bitpix == 32 || this._bitpix == -32) {
-	// 		arr = this.u8data.slice(4*idx, 4*idx+4);
-	// 	} else if (this._bitpix == 64 || this._bitpix == -64) {
-	// 		arr = this.u8data.slice(8*idx, 8*idx+8);
-	// 	}
-	// 	return arr;
-		
-	// }
+	
 }
 
 export default ParsePayload;
