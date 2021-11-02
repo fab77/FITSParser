@@ -11,6 +11,12 @@ class Pippo {
 }
 
 
+/**
+ * TODO List:
+ * - write test to check that the computed DATAMIN and DATAMAX are correct
+ * - remove callback and observer support
+ */
+
 describe("Reading FITS file:", function() {
     it("type:HiPS, from Herschel using Promise", (done) =>  {
         let fileuri = "/Users/fgiordano/Workspace/GitHub/FITSParser/test/inputs/Npix278.fits";
@@ -49,6 +55,20 @@ describe("Reading FITS file:", function() {
             assert.equal(fits.header.get('NPIX'), '278');
             done();
         }).catch(done);
+    });
+});
+
+
+
+describe("Reading FITS file from URL:", function() {
+    it("File not found", (done) =>  {
+        let fileuri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix44225.fits";
+        
+        new FITSParser(fileuri).then(fits => {
+            console.log(fits.header);
+            done();
+        })
+        .catch(done);
     });
 });
 

@@ -53,7 +53,7 @@ class ParsePayload{
 
 		this._BZERO = fitsheader.get("BZERO");
 		this._BSCALE = fitsheader.get("BSCALE");
-		this._BLANK = fitsheader.get("BLANK");
+		this._BLANK = fitsheader.get("BLANK"); // undefined in case it's not present in the header
 		// this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
 		this._BITPIX = fitsheader.get("BITPIX");
 		this._NAXIS1 = fitsheader.get("NAXIS1");
@@ -124,15 +124,23 @@ class ParsePayload{
 			px_val = this.extractPixelValue(bytesXelem * k);
 			ph_val = this.pixel2physicalValue(px_val);
 			
-			if( ph_val < Number.MIN_VALUE || ph_val > Number.MAX_VALUE ||
-				ph_val <= this._DATAMIN || ph_val >= this._DATAMAX) {
-					// setting out of range pixels values to phisical BLANK value
-					// this._physicalValues[p++] = this._BLANK_pv;  // unidimensional
-					pixelvalues[c][r] = this._BLANK;		// bidimensional
-			} else {
-				// this._physicalValues[p++] = ph_val;  // unidimensional
+
+			if (this._BLANK !== undefined && this._BLANK === px_val) {
+				pixelvalues[c][r] = this._BLANK;
+			}else {
 				pixelvalues[c][r] = px_val;
 			}
+
+			// TODO check the code below, seems to be not working correctly, since some values are wrongly set to blank 
+			// if( ph_val < Number.MIN_VALUE || ph_val > Number.MAX_VALUE ||
+			// 	ph_val <= this._DATAMIN || ph_val >= this._DATAMAX) {
+			// 		// setting out of range pixels values to phisical BLANK value
+			// 		// this._physicalValues[p++] = this._BLANK_pv;  // unidimensional
+			// 		pixelvalues[c][r] = this._BLANK;		// bidimensional
+			// } else {
+			// 	// this._physicalValues[p++] = ph_val;  // unidimensional
+			// 	pixelvalues[c][r] = px_val;
+			// }
 			k++;
 		}
 

@@ -22,6 +22,7 @@ class FITSParser {
 		
 		
 		let loader = load(uri);
+		// TODO when load returns null, truncate promise chain
 		return loader
 			.then(data => 
 				this.processFits(data))
@@ -35,6 +36,8 @@ class FITSParser {
 					callback(fits);
 				}
 				return fits;
+			}).catch(function(err) {
+				console.log("[FITSParser] "+err);
 			});
 	}
 
@@ -53,7 +56,8 @@ class FITSParser {
 
 	}
 
-	writeFITS(header, rawdata) {
+	static writeFITS(header, rawdata) {
+		console.log("Writing FITS");
 		let writer = new FITSWriter();
 		writer.run(header, rawdata);
 		return writer.typedArrayToURL();

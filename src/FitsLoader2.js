@@ -17,7 +17,12 @@ export async function load(uri) {
 		
 		return fetch(uri)
 			.then(res => {
-				return res.buffer()
+				if (!res.ok) {
+					throw new Error("File not loaded. HTTP error: "+res.status + " " + res.statusText);
+				}else{
+					return res.buffer();
+				}
+				
 			});
 		
 	} else { // local file path
