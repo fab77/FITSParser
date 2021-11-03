@@ -61,6 +61,7 @@ class ParsePayload{
 		this._DATAMIN = fitsheader.get("DATAMIN");
 		this._DATAMAX = fitsheader.get("DATAMAX");
 
+		this.physicalblank = undefined;
 		if (this._DATAMAX === undefined || this._DATAMIN === undefined) {
 			let [min, max] = this.computePhysicalMinAndMax ();
 			this._DATAMAX = max;
@@ -78,87 +79,59 @@ class ParsePayload{
 		let px_val, ph_val;
 		let min = undefined;
 		let max = undefined;
+
+		
+		if (this._BLANK !== undefined) {
+			this.physicalblank = this.pixel2physicalValue(physicalblank);
+		}
+
 		while (i < pxLength){
 		
 			px_val = this.extractPixelValue(bytesXelem*i);
 			ph_val = this.pixel2physicalValue(px_val);
-
-			if (ph_val < min || min === undefined) {
-				min = ph_val;
+			if (this.physicalblank === undefined || this.physicalblank !== ph_val){
+				if (ph_val < min || min === undefined) {
+					min = ph_val;
+				}
+	
+				if (ph_val > max || max === undefined) {
+					max = ph_val;
+				}				
 			}
-
-			if (ph_val > max || max === undefined) {
-				max = ph_val;
-			}				
 			i++;
 		}
 		return [min, max];
 	}
 
-	/**
-	 * 
-	 * @returns Matrix (naxis1 x naxis2) with physical values
-	 * 
-	 */
 	parse () {
 		
-    	let px_val; // pixel array value
-		let ph_val = undefined; // pixel physical value
+    	// let px_val; // pixel array value
+		// let ph_val = undefined; // pixel physical value
 		
 		let bytesXelem = Math.abs(this._BITPIX / 8);
 		let pxLength = this._u8data.byteLength / bytesXelem;
 
 		let k = 0;
-		// let p = 0;
 		let c, r;
 		let pixelvalues = [];
-		// let blankbytes = ParseUtils.convertBlankToBytes(this._BLANK, bytesXelem); // not needed
-		// let pixelvalues = new Uint8Array();
+		
 		while (k < pxLength) {
 
-			/** old code */
-			// r = Math.floor(k / this._NAXIS1); // row
-			// c = k - r * this._NAXIS1; // col
-
-			// if (r === 0) {
-			// 	pixelvalues[c] = new Array(this._NAXIS1);				
-			// }
-			// px_val = this.extractPixelValue(bytesXelem * k);
-			// ph_val = this.pixel2physicalValue(px_val);
-			
-
-			// if (this._BLANK !== undefined && this._BLANK === px_val) {
-			// 	pixelvalues[c][r] = this._BLANK;
-			// }else {
-			// 	pixelvalues[c][r] = px_val;
-			// }
-
-			// k++;
-			/** end of old code */
 			r = Math.floor(k / this._NAXIS1); // row
 			c = (k - r * this._NAXIS1) * bytesXelem; // col
 			if (c === 0) {
-				// pixelvalues[c] = new Array(this._NAXIS1);
 				pixelvalues[r] = new Uint8Array(this._NAXIS1 * bytesXelem);
 			}
-			px_val = this.extractPixelValue(bytesXelem * k);
-			ph_val = this.pixel2physicalValue(px_val);
 			
-			// if (this._BLANK !== undefined && this._BLANK == px_val) {
-				
-			// 	for (let i= 0; i < bytesXelem; i++ ) {
-			// 		px_val = blankbytes[i];	
-			// 		pixelvalues[r][c+i] = px_val;
-			// 	}
+			// px_val = this.extractPixelValue(bytesXelem * k);
+			// ph_val = this.pixel2physicalValue(px_val);
 
-			// }else {
-
-				for (let i= 0; i < bytesXelem; i++ ) {
-					// console.log(this._u8data[k + i]);
-					pixelvalues[r][c+i] = this._u8data[k * bytesXelem + i];
-				}
-
-			// }
+			// TODO check if ph_val == blank
+			// if not then use ph_val to compute datamin and datamax
+			
+			for (let i= 0; i < bytesXelem; i++ ) {
+				pixelvalues[r][c+i] = this._u8data[k * bytesXelem + i];
+			}
 			k++;		
 		}
 
@@ -170,7 +143,6 @@ class ParsePayload{
 	extractPixelValue(offset) {
 
 		let px_val = undefined; // pixel value
-		let px_val1, px_val2, px_val3, px_val4;
 		if (this._BITPIX == 16) { // 16-bit 2's complement binary integer
 			px_val = ParseUtils.parse16bit2sComplement(this._u8data[offset], this._u8data[offset+1]);
 		
