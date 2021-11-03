@@ -17,7 +17,8 @@
  * -64	64-bit IEEE double precision floating point
  * 
  */
-
+// import { Blob } from 'buffer';
+import fs from 'fs';
 import ParseUtils from './ParseUtils.js';
 
 class FITSWriter {
@@ -40,22 +41,25 @@ class FITSWriter {
         
         // Gnomonic
         let str = this.formatHeaderLine("SIMPLE", "T");
-        str += this.formatHeaderLine("BITPIX", headerDetails.bitpix);
+        str += this.formatHeaderLine("BITPIX", headerDetails.get("BITPIX"));
         str += this.formatHeaderLine("NAXIS", 2);
-        str += this.formatHeaderLine("NAXIS1", headerDetails.naxis1);
-        str += this.formatHeaderLine("NAXIS2", headerDetails.naxis2);
-        str += this.formatHeaderLine("BLANK", headerDetails.blank);
-        str += this.formatHeaderLine("BSCALE", headerDetails.bscale);
-        str += this.formatHeaderLine("BZERO", headerDetails.bzero);
+        str += this.formatHeaderLine("NAXIS1", headerDetails.get("NAXIS1"));
+        str += this.formatHeaderLine("NAXIS2", headerDetails.get("NAXIS2"));
+        str += this.formatHeaderLine("BLANK", headerDetails.get("BLANK"));
+        str += this.formatHeaderLine("BSCALE", headerDetails.get("BSCALE"));
+        str += this.formatHeaderLine("BZERO", headerDetails.get("BZERO"));
 
-        str += this.formatHeaderLine("CTYPE1", headerDetails.ctype1);
-        str += this.formatHeaderLine("CTYPE2", headerDetails.ctype2);
-        str += this.formatHeaderLine("CDELT1", headerDetails.cdelt1);
-        str += this.formatHeaderLine("CDELT2", headerDetails.cdelt2);
-        str += this.formatHeaderLine("CRPIX1", headerDetails.crpix1);
-        str += this.formatHeaderLine("CRPIX2", headerDetails.crpix2);
-        str += this.formatHeaderLine("CRVAL1", headerDetails.crval1);
-        str += this.formatHeaderLine("CRVAL2", headerDetails.crval2);
+        str += this.formatHeaderLine("DATAMIN", headerDetails.get("DATAMIN"));
+        str += this.formatHeaderLine("DATAMAX", headerDetails.get("DATAMAX"));
+
+        str += this.formatHeaderLine("CTYPE1", headerDetails.get("CTYPE1"));
+        str += this.formatHeaderLine("CTYPE2", headerDetails.get("CTYPE2"));
+        str += this.formatHeaderLine("CDELT1", headerDetails.get("CDELT1"));
+        str += this.formatHeaderLine("CDELT2", headerDetails.get("CDELT2"));
+        str += this.formatHeaderLine("CRPIX1", headerDetails.get("CRPIX1"));
+        str += this.formatHeaderLine("CRPIX2", headerDetails.get("CRPIX2"));
+        str += this.formatHeaderLine("CRVAL1", headerDetails.get("CRVAL1"));
+        str += this.formatHeaderLine("CRVAL2", headerDetails.get("CRVAL2"));
         str += this.formatHeaderLine("WCSNAME", "Test Gnomonic");
         str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
         str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
@@ -120,14 +124,29 @@ class FITSWriter {
     preparePayload (arrayData) {
 
 
-        if (Array.isArray(arrayData[0].length)) {  // bidimensional input array
-            this._payloadArray = new Array(arrayData.length * arrayData[0].length);
-            // this._payloadArray = new Uint8Array(arrayData.buffer, 0, arrayData.byteLength);
-            for (let i = 0; i < arrayData.length; i++) {
-                for (let j = 0; j < arrayData[0].length; j++) {
-                    this._payloadArray.push(arrayData[i][j]);
-                }    
-            }
+
+        if (Array.isArray(arrayData[0])) {  // bidimensional input array
+            
+            // let idx = 0;
+            // let flatarray = [];
+            // this._payloadArray = new Array(arrayData.length * arrayData[0].length);
+            
+            // for (let i = 0; i < arrayData.length; i++) {
+            //     for (let j = 0; j < arrayData[0].length; j++) {
+            //         this._payloadArray[idx] = arrayData[i][j];
+            //         idx++;
+            //     }    
+            // }
+            // NEVER CALLED?!?
+            let pippo = new Array(arrayData.flat());
+
+            const buffer = new ArrayBuffer(pippo[0].length);
+            const uint8 = new Uint8Array(buffer);
+            // uint8.set(pippo[0]);
+            uint8.from(pippo[0]);
+            this._payloadArray = uint8;
+            console.log(this._payloadArray);
+            // console.log("aa");
         } else {    // unimensional input array
             this._payloadArray = arrayData;
         }
@@ -144,25 +163,28 @@ class FITSWriter {
     }
 
     prepareFITS () {
-        // let bytes = new Int16Array(this._headerArray.byteLength + this._payloadArray.byteLength);
-        // let bytes = new Int16Array(this._headerArray.byteLength);
-        // bytes.set(this._headerArray, 0);
-        // bytes.set(this._payloadArray, this._headerArray.byteLength);
         
-        // this._fitsData = this._headerArray;
-
         console.debug("this._headerArray.byteLength "+this._headerArray.byteLength);
         console.debug("this._headerArray.length "+this._headerArray.length);
-        let bytes = new Uint8Array(this._headerArray.length + this._payloadArray.length);
-        // let bytes = new Int16Array(this._headerArray.length + this._payloadArray.length);
 
+        // let bytes = new Uint8Array(this._headerArray.length + this._payloadArray.length);
+        let bytes = new Uint8Array(this._headerArray.length + this._payloadArray[0].length * this._payloadArray.length);
+        
+        // bytes.set(this._payloadArray, this._headerArray.length);
         bytes.set(this._headerArray, 0);
-        bytes.set(this._payloadArray, this._headerArray.length);
-
-        // let test = new Uint16Array(bytes.buffer);
-
-        // this._fitsData = test;
+        for (let i = 0; i < this._payloadArray.length; i++) {
+            // if (i == 511) {
+            //     console.log(i);
+            // }
+            let uint8 = this._payloadArray[i];
+            bytes.set(uint8, this._headerArray.length + (i * uint8.length));
+        }
+        
         this._fitsData = bytes;
+    }
+
+    writeFITS () {
+        fs.writeFileSync('./test-'+Date.now()+'.fits', this._fitsData);
     }
 
     typedArrayToURL() {

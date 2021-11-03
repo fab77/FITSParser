@@ -112,36 +112,54 @@ class ParsePayload{
 		// let p = 0;
 		let c, r;
 		let pixelvalues = [];
+		// let blankbytes = ParseUtils.convertBlankToBytes(this._BLANK, bytesXelem); // not needed
+		// let pixelvalues = new Uint8Array();
 		while (k < pxLength) {
 
+			/** old code */
+			// r = Math.floor(k / this._NAXIS1); // row
+			// c = k - r * this._NAXIS1; // col
+
+			// if (r === 0) {
+			// 	pixelvalues[c] = new Array(this._NAXIS1);				
+			// }
+			// px_val = this.extractPixelValue(bytesXelem * k);
+			// ph_val = this.pixel2physicalValue(px_val);
+			
+
+			// if (this._BLANK !== undefined && this._BLANK === px_val) {
+			// 	pixelvalues[c][r] = this._BLANK;
+			// }else {
+			// 	pixelvalues[c][r] = px_val;
+			// }
+
+			// k++;
+			/** end of old code */
 			r = Math.floor(k / this._NAXIS1); // row
-			c = k - r * this._NAXIS1; // col
-
-			if (r === 0) {
-				pixelvalues[c] = new Array(this._NAXIS1);
+			c = (k - r * this._NAXIS1) * bytesXelem; // col
+			if (c === 0) {
+				// pixelvalues[c] = new Array(this._NAXIS1);
+				pixelvalues[r] = new Uint8Array(this._NAXIS1 * bytesXelem);
 			}
-
 			px_val = this.extractPixelValue(bytesXelem * k);
 			ph_val = this.pixel2physicalValue(px_val);
 			
+			// if (this._BLANK !== undefined && this._BLANK == px_val) {
+				
+			// 	for (let i= 0; i < bytesXelem; i++ ) {
+			// 		px_val = blankbytes[i];	
+			// 		pixelvalues[r][c+i] = px_val;
+			// 	}
 
-			if (this._BLANK !== undefined && this._BLANK === px_val) {
-				pixelvalues[c][r] = this._BLANK;
-			}else {
-				pixelvalues[c][r] = px_val;
-			}
+			// }else {
 
-			// TODO check the code below, seems to be not working correctly, since some values are wrongly set to blank 
-			// if( ph_val < Number.MIN_VALUE || ph_val > Number.MAX_VALUE ||
-			// 	ph_val <= this._DATAMIN || ph_val >= this._DATAMAX) {
-			// 		// setting out of range pixels values to phisical BLANK value
-			// 		// this._physicalValues[p++] = this._BLANK_pv;  // unidimensional
-			// 		pixelvalues[c][r] = this._BLANK;		// bidimensional
-			// } else {
-			// 	// this._physicalValues[p++] = ph_val;  // unidimensional
-			// 	pixelvalues[c][r] = px_val;
+				for (let i= 0; i < bytesXelem; i++ ) {
+					// console.log(this._u8data[k + i]);
+					pixelvalues[r][c+i] = this._u8data[k * bytesXelem + i];
+				}
+
 			// }
-			k++;
+			k++;		
 		}
 
 		return pixelvalues;

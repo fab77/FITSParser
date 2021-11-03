@@ -49,6 +49,19 @@ class ParseUtils {
 	}
 
 
+	static convertBlankToBytes(blank, nbytes) {
+		let str = Math.abs(blank).toString(2);
+		while ( (str.length/8) < nbytes ){
+			str += "0";
+		}
+		let buffer = new ArrayBuffer(nbytes);
+		let uint8 = new Uint8Array(buffer);
+		for (let i = 0; i < nbytes; i++) {
+			uint8[i] = parseInt(str.substr(8 * i, 8 * (i + 1)), 2);
+		}
+		return uint8;
+		
+	}
 	/** https://gist.github.com/Manouchehri/f4b41c8272db2d6423fa987e844dd9ac */
 	static parseFloatingPointFormat (bytes, ebits, fbits) {
 		
@@ -204,6 +217,32 @@ class ParseUtils {
 	static getByteAt (data, offset) {
 		let dataOffset = 0;
 		return data.charCodeAt(offset + dataOffset) & 0xFF;
+	}
+
+	static extractPixelValue(offset, bytes, bitpix) {
+
+		let px_val = undefined; // pixel value
+		let px_val1, px_val2, px_val3, px_val4;
+		if (bitpix == 16) { // 16-bit 2's complement binary integer
+			px_val = ParseUtils.parse16bit2sComplement(bytes[offset], bytes[offset+1]);
+		
+		} else if (bitpix == 32) { // IEEE 754 half precision (float16) ?? 
+			px_val = ParseUtils.parse32bit2sComplement(bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]); 
+		
+		} else if (bitpix == -32) { // 32-bit IEEE single-precision floating point
+			// px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]); 
+			px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 8, 23);
+
+		} else if (bitpix == 64) { // 64-bit 2's complement binary integer 
+			throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+		
+		} else if (bitpix == -64) { // 64-bit IEEE double-precision floating point 
+			//https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+			px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 11, 52);
+
+		}
+
+		return px_val;
 	}
 	
 	

@@ -60,7 +60,8 @@ class FITSParser {
 		console.log("Writing FITS");
 		let writer = new FITSWriter();
 		writer.run(header, rawdata);
-		return writer.typedArrayToURL();
+		writer.writeFITS();
+		// return writer.typedArrayToURL();
 	}
 
 }
