@@ -85,7 +85,7 @@ class ParseUtils {
 		
 		// Produce number
 		if (e === (1 << ebits) - 1) {
-			return f !== 0 ? NaN : s * Infinity;
+			return f !== 0 ? undefined : s * Infinity;
 		}
 		else if (e > 0) {
 			return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));

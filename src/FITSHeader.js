@@ -1,4 +1,7 @@
 "use strict";
+
+import FITSHeaderItem from "./FITSHeaderItem.js";
+
 /**
  * Summary. (bla bla bla)
  *
@@ -16,52 +19,63 @@ class FITSHeader extends Map {
 
 	constructor(){
 		super();
-		this.set("BZERO", 0);
-		this.set("BSCALE", 1);
+		// this.set("BZERO", 0);
+		// this.set("BSCALE", 1);
 		/* BLANK: The value field shall contain an integer that
 		 * specifies the representation of ARRAY values whose physical values are
 		 * undefined. 
 		 */
-		this.set("BLANK", undefined);
-		this._offset = 2880;
+		// this.set("BLANK", undefined);
+		// this._offset = 2880;
+		// if (offset) {
+		// 	this._offset = offset;
+		// }
+		this._items = [];
+		
+	}
+
+	set offset(offset){
+		this._offset = offset;
 	}
 	
 	get offset() {
 		return this._offset;
 	}
+
+	getItemList() { 
+		return this._items;
+	}
 	
-	getNaxis() {
-		return this.get("NAXIS");
+	getItemListOf(key) {
+		let res = [];
+		for (let i = 0; i < this._items.length; i++) {
+			let item = this._items[i];
+			if (item.key == key){
+				res.push(item);
+			}
+		}
+		return res;
 	}
 
-	getNaxis1(){
-		return this.get("NAXIS1");
+	addItemAtTheBeginning(item){
+		let newitemlist = [item].concat(this._items);
+		this._items = newitemlist;
+	}
+	addItem (item) {
+
+		if (["SIMPLE", "BITPIX", "NAXIS", "NAXIS1", "NAXIS2", "BLANK", "BZERO",
+			"BSCALE", "DATAMIN", "DATAMAX", "NPIX", "ORDER", "CRPIX1", "CRPIX2", 
+			"CDELT1", "CDELT2"].includes(item.key)) {
+			this.set(item.key, item.value);
+		}
+		this._items.push(item);
 	}
 
-	getNaxis2(){
-		return this.get("NAXIS2");
-	}
 
-	getSimple(){
-		return this.get("SIMPLE");
+	getNumRows() {
+		return this._items.length;
 	}
-
-	getBlank(){
-		return this.get("BLANK");
-	}
-
-	getBscale(){
-		return this.get("BSCALE");
-	}
-
-	getBzero(){
-		return this.get("BZERO");
-	}
-
-	getSimple(){
-		return this.get("SIMPLE");
-	}
-
+	
 	getValue(key){
 		return this._keyValues.get(key);
 	}
@@ -73,6 +87,78 @@ class FITSHeader extends Map {
 	get height () {
 		return this._height;
 	}
+
+	// getNaxis() {
+	// 	return this.get("NAXIS");
+	// }
+	// setNaxis(val) {
+	// 	return this.set("NAXIS", val);
+	// }
+
+	// getNaxis1(){
+	// 	return this.get("NAXIS1");
+	// }
+	// setNaxis1(val) {
+	// 	return this.set("NAXIS1", val);
+	// }
+
+	// getNaxis2(){
+	// 	return this.get("NAXIS2");
+	// }
+	// setNaxis2(val) {
+	// 	return this.set("NAXIS2", val);
+	// }
+
+	// getSimple(){
+	// 	return this.get("SIMPLE");
+	// }
+	// setSimple(val) {
+	// 	return this.set("SIMPLE", val);
+	// }
+
+	// getBlank(){
+	// 	return this.get("BLANK");
+	// }
+	// setBlank(val) {
+	// 	return this.set("BLANK", val);
+	// }
+
+	// getBscale(){
+	// 	return this.get("BSCALE");
+	// }
+	// setBscale(val) {
+	// 	return this.set("BSCALE", val);
+	// }
+
+	// getBzero(){
+	// 	return this.get("BZERO");
+	// }
+	// setBzero(val) {
+	// 	return this.set("BZERO", val);
+	// }
+
+	// getBitpix(){
+	// 	return this.get("BITPIX");
+	// }
+	// setBitpix(val) {
+	// 	return this.set("BITPIX", val);
+	// }
+
+	// getDatamin(){
+	// 	return this.get("DATAMIN");
+	// }
+	// setDatamin(val) {
+	// 	return this.set("DATAMIN", val);
+	// }
+
+	// getDatamax(){
+	// 	return this.get("DATAMAX");
+	// }
+	// setDatamax(val) {
+	// 	return this.set("DATAMAX", val);
+	// }
+
+	
 
 	// /**
 	//  * @param {number} offset

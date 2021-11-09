@@ -1,4 +1,5 @@
 "use strict";
+
 /**
  * Summary. (bla bla bla)
  *
@@ -7,7 +8,7 @@
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-
+ import FITSHeaderItem from './FITSHeaderItem.js';
 import ParseUtils from './ParseUtils.js';
 
 // let colorsMap = new Map();
@@ -52,7 +53,13 @@ class ParsePayload{
 	init (fitsheader) {
 
 		this._BZERO = fitsheader.get("BZERO");
+		if (this._BZERO === undefined) {
+			this._BZERO = 0;
+		}
 		this._BSCALE = fitsheader.get("BSCALE");
+		if (this._BSCALE === undefined) {
+			this._BSCALE = 1;
+		}
 		this._BLANK = fitsheader.get("BLANK"); // undefined in case it's not present in the header
 		// this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
 		this._BITPIX = fitsheader.get("BITPIX");
@@ -66,9 +73,15 @@ class ParsePayload{
 			let [min, max] = this.computePhysicalMinAndMax ();
 			this._DATAMAX = max;
 			this._DATAMIN = min;
-			fitsheader.set("DATAMAX", max);
-			fitsheader.set("DATAMIN", min);
+			let maxitem = new FITSHeaderItem("DATAMAX", max, " / computed with FITSParser");
+			let minitem = new FITSHeaderItem("DATAMIN", min, " / computed with FITSParser");
+			fitsheader.addItem(maxitem);
+			fitsheader.addItem(minitem);
+			// fitsheader.set("DATAMAX", max);
+			// fitsheader.set("DATAMIN", min);
 		}
+		// let item = new FITSHeaderItem("END", null, null);
+		// fitsheader.addItem(item);
 	}
 	
 	computePhysicalMinAndMax () {
@@ -82,19 +95,21 @@ class ParsePayload{
 
 		
 		if (this._BLANK !== undefined) {
-			this.physicalblank = this.pixel2physicalValue(physicalblank);
+			this.physicalblank = this.pixel2physicalValue(this._BLANK);
 		}
 
 		while (i < pxLength){
-		
-			px_val = this.extractPixelValue(bytesXelem*i);
+			
+			// px_val = this.extractPixelValue(bytesXelem*i);
+			px_val = this.extractPixelValue(bytesXelem*i, this._u8data, this._BITPIX);
 			ph_val = this.pixel2physicalValue(px_val);
+			//TODO check below if
 			if (this.physicalblank === undefined || this.physicalblank !== ph_val){
-				if (ph_val < min || min === undefined) {
+				if (ph_val !== undefined && (ph_val < min || min === undefined)) {
 					min = ph_val;
 				}
 	
-				if (ph_val > max || max === undefined) {
+				if (ph_val !== undefined && (ph_val > max || max === undefined)) {
 					max = ph_val;
 				}				
 			}
@@ -110,11 +125,13 @@ class ParsePayload{
 		
 		let bytesXelem = Math.abs(this._BITPIX / 8);
 		let pxLength = this._u8data.byteLength / bytesXelem;
+		pxLength = this._NAXIS1 * this._NAXIS2;
 
 		let k = 0;
 		let c, r;
 		let pixelvalues = [];
 		
+		let pixv, pv;
 		while (k < pxLength) {
 
 			r = Math.floor(k / this._NAXIS1); // row
@@ -132,7 +149,13 @@ class ParsePayload{
 			for (let i= 0; i < bytesXelem; i++ ) {
 				pixelvalues[r][c+i] = this._u8data[k * bytesXelem + i];
 			}
-			k++;		
+
+			// if (k == 232) {
+			// 	pixv = this.extractPixelValue(k * bytesXelem);
+			// 	pv = this._BZERO + this._BSCALE * pixv;
+			// }
+			
+			k++;	
 		}
 
 		return pixelvalues;
@@ -140,6 +163,7 @@ class ParsePayload{
 	}
 
 	
+	/** this can be deleted */
 	extractPixelValue(offset) {
 
 		let px_val = undefined; // pixel value
@@ -151,7 +175,7 @@ class ParsePayload{
 		
 		} else if (this._BITPIX == -32) { // 32-bit IEEE single-precision floating point
 			// px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]); 
-			px_val = ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 8), 8, 23);
+			px_val = ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 4), 8, 23);
 
 		} else if (this._BITPIX == 64) { // 64-bit 2's complement binary integer 
 			throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
@@ -166,7 +190,11 @@ class ParsePayload{
 	}
 	
 	pixel2physicalValue(pxval) {
-		return this._BZERO + this._BSCALE * pxval;
+		if (pxval !== undefined) {
+			return this._BZERO + this._BSCALE * pxval;
+		}
+		return undefined;
+		
 	}
 	
 }

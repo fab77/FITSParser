@@ -19,6 +19,7 @@
  */
 // import { Blob } from 'buffer';
 import fs from 'fs';
+import FITSHeaderItem from './FITSHeaderItem.js';
 import ParseUtils from './ParseUtils.js';
 
 class FITSWriter {
@@ -39,35 +40,54 @@ class FITSWriter {
 
     prepareHeader (headerDetails) {
         
-        // Gnomonic
-        let str = this.formatHeaderLine("SIMPLE", "T");
-        str += this.formatHeaderLine("BITPIX", headerDetails.get("BITPIX"));
-        str += this.formatHeaderLine("NAXIS", 2);
-        str += this.formatHeaderLine("NAXIS1", headerDetails.get("NAXIS1"));
-        str += this.formatHeaderLine("NAXIS2", headerDetails.get("NAXIS2"));
-        str += this.formatHeaderLine("BLANK", headerDetails.get("BLANK"));
-        str += this.formatHeaderLine("BSCALE", headerDetails.get("BSCALE"));
-        str += this.formatHeaderLine("BZERO", headerDetails.get("BZERO"));
 
-        str += this.formatHeaderLine("DATAMIN", headerDetails.get("DATAMIN"));
-        str += this.formatHeaderLine("DATAMAX", headerDetails.get("DATAMAX"));
+        // let str = this.formatHeaderLine("SIMPLE", "T");
+        // str += this.formatHeaderLine("BITPIX", headerDetails.get("BITPIX"));
+        // str += this.formatHeaderLine("NAXIS", 2);
+        // str += this.formatHeaderLine("NAXIS1", headerDetails.get("NAXIS1"));
+        // str += this.formatHeaderLine("NAXIS2", headerDetails.get("NAXIS2"));
+        // str += this.formatHeaderLine("BLANK", headerDetails.get("BLANK"));
+        // str += this.formatHeaderLine("BSCALE", headerDetails.get("BSCALE"));
+        // str += this.formatHeaderLine("BZERO", headerDetails.get("BZERO"));
 
-        str += this.formatHeaderLine("CTYPE1", headerDetails.get("CTYPE1"));
-        str += this.formatHeaderLine("CTYPE2", headerDetails.get("CTYPE2"));
-        str += this.formatHeaderLine("CDELT1", headerDetails.get("CDELT1"));
-        str += this.formatHeaderLine("CDELT2", headerDetails.get("CDELT2"));
-        str += this.formatHeaderLine("CRPIX1", headerDetails.get("CRPIX1"));
-        str += this.formatHeaderLine("CRPIX2", headerDetails.get("CRPIX2"));
-        str += this.formatHeaderLine("CRVAL1", headerDetails.get("CRVAL1"));
-        str += this.formatHeaderLine("CRVAL2", headerDetails.get("CRVAL2"));
-        str += this.formatHeaderLine("WCSNAME", "Test Gnomonic");
-        str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
-        str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
-        str += this.formatHeaderLine("END", "");
+        // str += this.formatHeaderLine("DATAMIN", headerDetails.get("DATAMIN"));
+        // str += this.formatHeaderLine("DATAMAX", headerDetails.get("DATAMAX"));
+        let item = new FITSHeaderItem("END", null, null);
+		headerDetails.addItem(item);
+        
+        let str = '';
+        for (let i =0; i < headerDetails.getItemList().length; i++) {
+            let item = headerDetails.getItemList()[i];
+            str += this.formatHeaderLine(item.key, item.value, item.comment);        
+        }
+
+        
+
+        // str += this.formatHeaderLine("CTYPE1", headerDetails.getItemListOf("CTYPE1")[0]);
+        // str += this.formatHeaderLine("CTYPE2", headerDetails.getItemListOf("CTYPE2")[0]);
+        // str += this.formatHeaderLine("CDELT1", headerDetails.getItemListOf("CDELT1")[0]);
+        // str += this.formatHeaderLine("CDELT2", headerDetails.getItemListOf("CDELT2")[0]);
+        // str += this.formatHeaderLine("CRPIX1", headerDetails.getItemListOf("CRPIX1")[0]);
+        // str += this.formatHeaderLine("CRPIX2", headerDetails.getItemListOf("CRPIX2")[0]);
+        // str += this.formatHeaderLine("CRVAL1", headerDetails.getItemListOf("CRVAL1")[0]);
+        // str += this.formatHeaderLine("CRVAL2", headerDetails.getItemListOf("CRVAL2")[0]);
+        // str += this.formatHeaderLine("WCSNAME", "Test Gnomonic");
+        // str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
+        // str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
+        // str += this.formatHeaderLine("END", "");
 
         let strBytelen = new TextEncoder().encode(str).length;
+        // headerDetails.offset = 2880;
+
         
-        for (let j = 0; j < 2880 - strBytelen; j++) {
+        let nhdu = Math.ceil(strBytelen / 2880);
+        let offset = nhdu * 2880;
+
+        // for (let j = 0; j < headerDetails.offset - strBytelen; j++) {
+        //     str += " ";
+        // }
+        
+        for (let j = 0; j < offset - strBytelen; j++) {
             str += " ";
         }
         
@@ -77,47 +97,105 @@ class FITSWriter {
         for (let i = 0; i <  str.length; i++) {
             this._headerArray[i] = ParseUtils.getByteAt(str, i);
         }
-         
+        console.log(this._headerArray.byteLength);
+
     }
 
-    formatHeaderLine (keyword, value) {
+    formatHeaderLine (keyword, value, comment) {
         
-        // SIMPLE must be the first keyword in the primary HDU
-        // BITPIX must be the second keyword in the primary HDU
-        // all rows 80 ASCII chars of 1 byte
-        // bytes [0-8]   -> keyword
-        // bytes [9-10] -> '= '
-        // bytes [11-80] -> value:
-        //      in case of number -> right justified to the 30th??? digit/position
-        //      in case of string -> between '' and starting from byte 12
-        let klen = keyword.length;
-        let vlen;
-        // keyword
-        if (isNaN(value)){
-            if (keyword == 'SIMPLE')  {
-                value = value;
-            }else{
-                value = "'"+value+"'";
-            }
-            vlen = value.length;
-        }else{
-            vlen = value.toString().length;
-        }
+        // let klen = keyword.length;
+        // let vlen;
+        // // keyword
+        // if (isNaN(value)){
+        //     if (keyword == 'SIMPLE')  {
+        //         value = value;
+        //     }else{
+        //         value = "'"+value+"'";
+        //     }
+        //     vlen = value.length;
+        // }else{
+        //     vlen = value.toString().length;
+        // }
         
-        let str = keyword;
-        for (let i = 0; i < 8 - klen; i++) {
-            str += ' ';
-        }
+        // let str = keyword;
+        // for (let i = 0; i < 8 - klen; i++) {
+        //     str += ' ';
+        // }
+        let str;
+        
+        if (keyword !== null && keyword !== undefined) {
 
-        if (keyword !== 'END')  {
-            // value
-            str += "= ";
-            str += value;
-            for (let j = 80; j > 10 + vlen; j--) {
+            str = keyword;
+
+            if (keyword == 'END') {
+                for (let j = 80; j > keyword.length; j--) {
+                    str += ' ';
+                }
+                console.log(str.length +" <- "+str);
+                return str;
+            }
+
+            if (keyword == "COMMENT" || keyword == "HISTORY" ){
+                for (let i = 0; i < 10 - keyword.length; i++) {
+                    str += ' ';
+                } 
+                str += value;
+                let len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += ' ';
+                }
+                console.log(str.length +" <- "+str);
+                return str;
+            }
+
+            
+            for (let i = 0; i < 8 - keyword.length; i++) {
                 str += ' ';
             }
+
+            str += "= ";
+
+            if (value !== null && value !== undefined)  {
+                // value    
+                str += value;
+                if (comment !== null && comment !== undefined) {
+                    str += comment;
+                }
+                let len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += ' ';
+                }
+            } else {
+                if (comment !== null && comment !== undefined) {
+                    str += comment;
+                }
+                let len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += ' ';
+                }
+            }
+
+        } else { // keyword null
+            str ='';
+            for (let j = 0; j < 18; j++) {
+                str += ' ';
+            }
+            if (comment !== null && comment !== undefined) {
+                str += comment;
+                let len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += ' ';
+                }
+            } else {
+                str = '';
+                for (let j = 80; j > 0; j--) {
+                    str += ' ';
+                }
+            }
         }
+
         
+        console.log(str.length +" <- "+str);
         return str;
     }
 
@@ -127,17 +205,6 @@ class FITSWriter {
 
         if (Array.isArray(arrayData[0])) {  // bidimensional input array
             
-            // let idx = 0;
-            // let flatarray = [];
-            // this._payloadArray = new Array(arrayData.length * arrayData[0].length);
-            
-            // for (let i = 0; i < arrayData.length; i++) {
-            //     for (let j = 0; j < arrayData[0].length; j++) {
-            //         this._payloadArray[idx] = arrayData[i][j];
-            //         idx++;
-            //     }    
-            // }
-            // NEVER CALLED?!?
             let pippo = new Array(arrayData.flat());
 
             const buffer = new ArrayBuffer(pippo[0].length);
@@ -164,18 +231,13 @@ class FITSWriter {
 
     prepareFITS () {
         
-        console.debug("this._headerArray.byteLength "+this._headerArray.byteLength);
-        console.debug("this._headerArray.length "+this._headerArray.length);
+        // console.debug("this._headerArray.byteLength "+this._headerArray.byteLength);
+        // console.debug("this._headerArray.length "+this._headerArray.length);
 
-        // let bytes = new Uint8Array(this._headerArray.length + this._payloadArray.length);
         let bytes = new Uint8Array(this._headerArray.length + this._payloadArray[0].length * this._payloadArray.length);
         
-        // bytes.set(this._payloadArray, this._headerArray.length);
         bytes.set(this._headerArray, 0);
         for (let i = 0; i < this._payloadArray.length; i++) {
-            // if (i == 511) {
-            //     console.log(i);
-            // }
             let uint8 = this._payloadArray[i];
             bytes.set(uint8, this._headerArray.length + (i * uint8.length));
         }

@@ -47,7 +47,10 @@ class FITSParser {
 		
 		let payloadParser = new ParsePayload(header, rawdata);
 		let pixelvalues = payloadParser.parse();
-		
+		if (rawdata.length > (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length))) {
+			let leftover = rawdata.length - (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length));
+			// console.warn("It seems that there's at least one more HDU since there are "+leftover+" bytes not processed.")
+		}
 		this._procdata = pixelvalues;
 		return {
 				"header": header,
