@@ -21,6 +21,8 @@
 import fs from 'fs';
 import FITSHeaderItem from './FITSHeaderItem.js';
 import ParseUtils from './ParseUtils.js';
+import path from 'path';
+
 
 class FITSWriter {
 
@@ -34,24 +36,15 @@ class FITSWriter {
 
     run (header, rawdata) {
         this.prepareHeader(header);
-        this.preparePayload(rawdata);
+        this._payloadArray = rawdata;
+        // this.preparePayload(rawdata);
         this.prepareFITS();
     }
 
     prepareHeader (headerDetails) {
         
 
-        // let str = this.formatHeaderLine("SIMPLE", "T");
-        // str += this.formatHeaderLine("BITPIX", headerDetails.get("BITPIX"));
-        // str += this.formatHeaderLine("NAXIS", 2);
-        // str += this.formatHeaderLine("NAXIS1", headerDetails.get("NAXIS1"));
-        // str += this.formatHeaderLine("NAXIS2", headerDetails.get("NAXIS2"));
-        // str += this.formatHeaderLine("BLANK", headerDetails.get("BLANK"));
-        // str += this.formatHeaderLine("BSCALE", headerDetails.get("BSCALE"));
-        // str += this.formatHeaderLine("BZERO", headerDetails.get("BZERO"));
-
-        // str += this.formatHeaderLine("DATAMIN", headerDetails.get("DATAMIN"));
-        // str += this.formatHeaderLine("DATAMAX", headerDetails.get("DATAMAX"));
+        
         let item = new FITSHeaderItem("END", null, null);
 		headerDetails.addItem(item);
         
@@ -61,31 +54,11 @@ class FITSWriter {
             str += this.formatHeaderLine(item.key, item.value, item.comment);        
         }
 
-        
-
-        // str += this.formatHeaderLine("CTYPE1", headerDetails.getItemListOf("CTYPE1")[0]);
-        // str += this.formatHeaderLine("CTYPE2", headerDetails.getItemListOf("CTYPE2")[0]);
-        // str += this.formatHeaderLine("CDELT1", headerDetails.getItemListOf("CDELT1")[0]);
-        // str += this.formatHeaderLine("CDELT2", headerDetails.getItemListOf("CDELT2")[0]);
-        // str += this.formatHeaderLine("CRPIX1", headerDetails.getItemListOf("CRPIX1")[0]);
-        // str += this.formatHeaderLine("CRPIX2", headerDetails.getItemListOf("CRPIX2")[0]);
-        // str += this.formatHeaderLine("CRVAL1", headerDetails.getItemListOf("CRVAL1")[0]);
-        // str += this.formatHeaderLine("CRVAL2", headerDetails.getItemListOf("CRVAL2")[0]);
-        // str += this.formatHeaderLine("WCSNAME", "Test Gnomonic");
-        // str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
-        // str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
-        // str += this.formatHeaderLine("END", "");
-
         let strBytelen = new TextEncoder().encode(str).length;
-        // headerDetails.offset = 2880;
-
         
         let nhdu = Math.ceil(strBytelen / 2880);
         let offset = nhdu * 2880;
 
-        // for (let j = 0; j < headerDetails.offset - strBytelen; j++) {
-        //     str += " ";
-        // }
         
         for (let j = 0; j < offset - strBytelen; j++) {
             str += " ";
@@ -103,24 +76,6 @@ class FITSWriter {
 
     formatHeaderLine (keyword, value, comment) {
         
-        // let klen = keyword.length;
-        // let vlen;
-        // // keyword
-        // if (isNaN(value)){
-        //     if (keyword == 'SIMPLE')  {
-        //         value = value;
-        //     }else{
-        //         value = "'"+value+"'";
-        //     }
-        //     vlen = value.length;
-        // }else{
-        //     vlen = value.toString().length;
-        // }
-        
-        // let str = keyword;
-        // for (let i = 0; i < 8 - klen; i++) {
-        //     str += ' ';
-        // }
         let str;
         
         if (keyword !== null && keyword !== undefined) {
@@ -245,8 +200,17 @@ class FITSWriter {
         this._fitsData = bytes;
     }
 
-    writeFITS () {
-        fs.writeFileSync('./test-'+Date.now()+'.fits', this._fitsData);
+    writeFITS (fileuri) {
+        let dirname = path.dirname(fileuri);
+        fs.mkdir(dirname, { recursive: true }, (err) => {
+            if (err) throw err;
+        });
+        if (fs.existsSync(dirname)) {
+            fs.writeFileSync(fileuri, this._fitsData);
+        } else {
+            console.error(dirname + " doesn't exist");
+        }
+        
     }
 
     typedArrayToURL() {

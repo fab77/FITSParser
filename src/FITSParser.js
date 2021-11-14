@@ -59,11 +59,11 @@ class FITSParser {
 
 	}
 
-	static writeFITS(header, rawdata) {
+	static writeFITS(header, rawdata, fileuri) {
 		console.log("Writing FITS");
 		let writer = new FITSWriter();
 		writer.run(header, rawdata);
-		writer.writeFITS();
+		writer.writeFITS(fileuri);
 		// return writer.typedArrayToURL();
 	}
 
