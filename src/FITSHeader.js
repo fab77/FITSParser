@@ -58,6 +58,11 @@ class FITSHeader extends Map {
 	}
 
 	addItemAtTheBeginning(item){
+		if (["SIMPLE", "BITPIX", "NAXIS", "NAXIS1", "NAXIS2", "BLANK", "BZERO",
+			"BSCALE", "DATAMIN", "DATAMAX", "NPIX", "ORDER", "CRPIX1", "CRPIX2", 
+			"CDELT1", "CDELT2"].includes(item.key)) {
+			this.set(item.key, item.value);
+		}
 		let newitemlist = [item].concat(this._items);
 		this._items = newitemlist;
 	}
