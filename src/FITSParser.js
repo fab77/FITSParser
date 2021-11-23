@@ -21,9 +21,9 @@ class FITSParser {
 		this._callback = callback;
 		
 		
-		let loader = load(uri);
+		// let loader = load(uri);
 		// TODO when load returns null, truncate promise chain
-		return loader
+		return load(uri)
 			.then(data => 
 				this.processFits(data))
 			.then(fits => {
