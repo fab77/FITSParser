@@ -9,8 +9,8 @@
  */
  import fetch from "node-fetch";
  import { readFile } from 'fs/promises';
- import { https } from 'https';
- const __https = https;
+//  import { https } from 'https';
+//  const __https = https;
 
 
 export async function load(uri) {
@@ -45,62 +45,58 @@ export async function load(uri) {
 		// 	console.log('Error: ', err.message);
 		//   });
 		console.log("STOP!");
-		let w = window;
-		// console.log(w);
-if (window !== undefined) {
-	return window.fetch(uri,{
-		method: 'GET',
-		mode: 'cors',
-		headers:{
-			"Accept": "image/fits",
-			// "Content-Type": "image/fits",
-			// 'Authorization': 'Basic ' + apiKey,
-			// "Access-Control-Allow-Origin" : "*",
-			// "Access-Control-Allow-Credentials" : "true",
-			// "Access-Control-Allow-Methods" : "GET,HEAD,OPTIONS,POST,PUT",
-			// "Access-Control-Allow-Headers" : "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
-			// "Access-Control-Allow-Headers" : "Access-Control-Allow-Origin, Origin,Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers"
-
-		}
-	})
-		.then(res => {
-			// console.log("STOP!");
-			// console.log(res);
-			if (!res.ok) {
-				throw new Error("File not loaded. HTTP error: "+res.status + " " + res.statusText);
-			}else{
-				let p = res.arrayBuffer();
-				return p;
-			}
-			
-		}).catch(function(err) {
-			console.log("[FitsLoader2] "+err);
-		});
-} else {
-	return fetch(uri,{
-		method: 'GET',
-		headers:{
-			'Accept': 'image/fits',
-			'Content-Type': 'image/fits',
-			// 'Authorization': 'Basic ' + apiKey,
-			'Access-Control-Allow-Origin':'*'
-		}
-	})
-		.then(res => {
-			console.log("STOP!");
-			console.log(res);
-			if (!res.ok) {
-				throw new Error("File not loaded. HTTP error: "+res.status + " " + res.statusText);
-			}else{
-				return res.buffer();
-			}
-			
-		}).catch(function(err) {
-			console.log("[FitsLoader2] "+err);
-		});
-}
-
+		// let w = window;
 		
+		// console.log(w);
+		try { 
+			if (window !== undefined) {
+				console.log("after");
+				return window.fetch(uri,{
+					method: 'GET',
+					mode: 'cors',
+					headers:{
+						"Accept": "image/fits",
+						
+					}
+				})
+					.then(res => {
+						if (!res.ok) {
+							throw new Error("File not loaded. HTTP error: "+res.status + " " + res.statusText);
+						}else{
+							let p = res.arrayBuffer();
+							return p;
+						}
+						
+					}).catch(function(err) {
+						console.log("[FitsLoader2] "+err);
+					});
+			}
+
+
+		} catch (err) {
+			return fetch(uri,{
+				method: 'GET',
+				headers:{
+					'Accept': 'image/fits',
+					'Content-Type': 'image/fits',
+					// 'Authorization': 'Basic ' + apiKey,
+					'Access-Control-Allow-Origin':'*'
+				}
+			})
+				.then(res => {
+					console.log("STOP!");
+					console.log(res);
+					if (!res.ok) {
+						throw new Error("File not loaded. HTTP error: "+res.status + " " + res.statusText);
+					}else{
+						return res.buffer();
+					}
+					
+				}).catch(function(err) {
+					console.log("[FitsLoader2] "+err);
+				});
+		}
+	
 		
 	} else { // local file path
 		
