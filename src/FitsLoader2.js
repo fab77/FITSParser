@@ -44,13 +44,13 @@ export async function load(uri) {
 		//   }).on('error', err => {
 		// 	console.log('Error: ', err.message);
 		//   });
-		console.log("STOP!");
+		// console.log("STOP!");
 		// let w = window;
 		
 		// console.log(w);
 		try { 
 			if (window !== undefined) {
-				console.log("after");
+				// console.log("after");
 				return window.fetch(uri,{
 					method: 'GET',
 					mode: 'cors',
