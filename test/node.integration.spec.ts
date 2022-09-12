@@ -1,4 +1,4 @@
-import {FITSParser} from "../src/FITSParser-node";
+import {FITSParser} from "../src/FITSParser";
 
 
 

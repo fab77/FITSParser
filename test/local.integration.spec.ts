@@ -1,4 +1,4 @@
-import {FITSParser} from "../src/FITSParser-node";
+import {FITSParser} from "../src/FITSParser";
 
 describe("Reading FITS file from local filesystem:", function() {
     it("Reading HiPS FITS", async () =>  {

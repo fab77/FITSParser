@@ -1,6 +1,5 @@
 {
-  
-  "name": "fitsparser",
+  "name": "jsfitio",
   "description": "FITS I/O javascript library.",
   "version": "1.0.0",
   "private": true,
@@ -9,7 +8,7 @@
     "FITS I/O"
   ],
   "author": "Fabrizio Giordano (fab77)",
-  "license": "GNU Affero General Public License v3.0",
+  "license": "MIT",
   "homepage": "https://github.com/fab77/FITSParser#readme",
   "scripts": {
     "expose": "node unwrap.js",
@@ -35,7 +34,9 @@
     "email": "fabriziogiordano77@gmail.com"
   },
   "devDependencies": {
+    "@types/html-webpack-plugin": "^3.2.6",
     "@types/jest": "^29.0.0",
+    "@types/mini-css-extract-plugin": "^2.5.1",
     "@types/node-fetch": "^2.6.2",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
@@ -45,7 +46,9 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "fs": "^0.0.1-security",
+    "html-webpack-plugin": "^5.5.0",
     "jest": "^28.1.3",
+    "mini-css-extract-plugin": "^2.6.1",
     "path": "^0.12.7",
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.8",
@@ -58,6 +61,7 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "process": "^0.11.10"
   }
 }

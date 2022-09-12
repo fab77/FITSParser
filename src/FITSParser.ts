@@ -71,27 +71,27 @@ export class FITSParser {
 		if (!uri.substring(0, 5).toLowerCase().includes("http")) { // local file
 			const promise = await readFile(uri);
 			return promise;
-		// } else if (window !== undefined) { // browser
-		// 	let data = await window.fetch(uri, {
-		// 		method: 'GET',
-		// 		mode: 'cors',
-		// 		headers: {
-		// 			'Accept': 'image/fits',
-		// 			'Content-Type': 'image/fits',
-		// 			'Access-Control-Allow-Origin': '*'
-		// 		}
-		// 	}).then(res => {
-		// 		if (!res.ok) {
-		// 			throw new Error("File not loaded. HTTP error: " + res.status + " " + res.statusText);
-		// 		} else {
-		// 			return res.arrayBuffer();
-		// 		}
+		} else if (typeof window !== 'undefined') { // browser
+			let data = await window.fetch(uri, {
+				method: 'GET',
+				mode: 'cors',
+				headers: {
+					'Accept': 'image/fits',
+					'Content-Type': 'image/fits',
+					'Access-Control-Allow-Origin': '*'
+				}
+			}).then(res => {
+				if (!res.ok) {
+					throw new Error("File not loaded. HTTP error: " + res.status + " " + res.statusText);
+				} else {
+					return res.arrayBuffer();
+				}
 
-		// 	}).catch(function (err) {
-		// 		throw new Error("[FITSParser->getFile] " + err.response.data.message);
-		// 		// console.log("[FitsLoader2] " + err);
-		// 	});
-		// 	return data;
+			}).catch(function (err) {
+				throw new Error("[FITSParser->getFile] " + err.response.data.message);
+				// console.log("[FitsLoader2] " + err);
+			});
+			return data;
 		} else { // node
 
 			let data = await fetch(uri, {

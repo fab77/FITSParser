@@ -27,9 +27,9 @@ import { FITSHeader } from './model/FITSHeader';
 
 export class FITSWriter {
 
-    _headerArray;
-    _payloadArray;
-    _fitsData;
+    _headerArray: Uint8Array;
+    _payloadArray: Uint8Array[];
+    _fitsData: Uint8Array;
 
     constructor () {
 
