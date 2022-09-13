@@ -12,12 +12,15 @@
     <h2>Tip: Check your console</h2>
     <script src="./main.js"></script>
     <script>
-        let promise = FITSioAPI.default("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits")
-        console.log(promise);
+        let fitsURL = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
+        let fp = new FITSio.FITSParser(fitsURL);
+        let promise = fp.loadFITS();
+        // let promise = FITSioAPI.default("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits")
+        // console.log(promise);
         promise.then( (fits) => {
             console.log(fits);    
         });
-        console.log(new FITSioAPI.FITSHeaderItem("test"));
+        // console.log(new FITSioAPI.FITSHeaderItem("test"));
     </script>
 </body>
 

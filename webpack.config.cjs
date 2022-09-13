@@ -5,8 +5,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require('webpack')
 
-const isProduction = process.env.NODE_ENV == "production";
-console.log("### isProduction: "+isProduction);
+// const isProduction = process.env.NODE_ENV == "production";
+// console.log("### isProduction: "+isProduction);
 const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
@@ -16,7 +16,7 @@ const config = {
     chunkFilename: '[name].js',
     filename: '[name].js',
     libraryTarget: "var",
-    library: "FITSioAPI",
+    library: "FITSio",
   },
   plugins: [
     new HtmlWebpackPlugin({

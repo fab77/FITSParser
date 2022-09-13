@@ -73,9 +73,8 @@ export class FITSParser {
           method: "GET",
           mode: "cors",
           headers: {
-            Accept: "image/fits",
-            "Content-Type": "image/fits",
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
           },
         })
         .then((res) => {
@@ -103,6 +102,7 @@ export class FITSParser {
           Accept: "image/fits",
           "Content-Type": "image/fits",
           "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control"
         },
       })
         .then((res) => {
