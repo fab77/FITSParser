@@ -10,7 +10,7 @@ console.log("### isProduction: "+isProduction);
 const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
-  entry: "./src/index.js",
+  entry: "./src/index.ts",
   output: {
     path: path.resolve(__dirname, "dist"),
     chunkFilename: '[name].js',
@@ -31,8 +31,6 @@ const config = {
 
     new MiniCssExtractPlugin(),
 
-    // Add your plugins here
-    // Learn more about plugins from https://webpack.js.org/configuration/plugins/
   ],
   module: {
     rules: [
@@ -50,8 +48,6 @@ const config = {
         type: "asset",
       },
 
-      // Add your rules for custom modules here
-      // Learn more about loaders from https://webpack.js.org/loaders/
     ],
   },
   resolve: {
@@ -86,11 +82,3 @@ module.exports = (env, argv) => {
   }
   return config;
 };
-// module.exports = () => {
-//   if (isProduction) {
-//     config.mode = "production";
-//   } else {
-//     config.mode = "development";
-//   }
-//   return config;
-// };

@@ -1,5 +1,3 @@
-"use strict";
-
 import { FITSHeader } from "./model/FITSHeader";
 import { FITSHeaderItem } from "./model/FITSHeaderItem";
 import { FITSHeaderLine } from "./model/FITSHeaderLine";
@@ -15,48 +13,26 @@ import { FITSHeaderLine } from "./model/FITSHeaderLine";
 
 export class ParseHeader {
 
-
-
-
 	static parse(rawdata: Uint8Array): FITSHeader {
 
 		// only one header block (2880) allowed atm. 
 		// TODO handle multiple header blocks
 		// let headerByteData = new Uint8Array(rawdata, 0, 2880);
 
-		let textDecoder = new TextDecoder('iso-8859-1');
+		const textDecoder = new TextDecoder('iso-8859-1');
 
 
-		let header = new FITSHeader();
+		const header = new FITSHeader();
 
 		let nline = 0;
-		let key: string = ""
+		let key = ""
 		let val: string;
-		// let tval;
-		// let comment;
-
-		// // as per FITS standard, SIMPLE nust be the first keyword in HDU
-		// let simpleline = new Uint8Array(rawdata.slice(nline*80, nline*80 + 80));
-		// nline++;
-		// let simpleval = new  Uint8Array(simpleline.slice(10, 80));
-		// val = textDecoder.decode(simpleval).trim();
-		// header.set("SIMPLE", val);
-
-		// // as per FITS standard, SIMPLE nust be the second keyword in HDU
-		// let bitpixline = new Uint8Array(rawdata.slice(nline*80, nline*80 + 80));
-		// nline++;
-		// let bitpixval = new  Uint8Array(bitpixline.slice(10, 80));
-		// val = textDecoder.decode(bitpixval).trim();
-		// header.set("BITPIX", val);
-
-
+		
 		let u8line: Uint8Array;
 		let u8key: Uint8Array;
 		let u8val: Uint8Array;
 		let u8ind: Uint8Array;
-		let ind: string;
-		// let ival;
-		// let icomment;
+		// let ind: string;
 		let item: FITSHeaderItem;
 		let fitsLine: FITSHeaderLine;
 
@@ -69,7 +45,7 @@ export class ParseHeader {
 			key = textDecoder.decode(u8key).trim();
 			// value indicator
 			u8ind = new Uint8Array(u8line.slice(8, 10));
-			ind = textDecoder.decode(u8ind);
+			// ind = textDecoder.decode(u8ind);
 			// reading value
 			u8val = new Uint8Array(u8line.slice(10, 80));
 			val = textDecoder.decode(u8val).trim();
@@ -125,16 +101,12 @@ export class ParseHeader {
 
 		item = new FITSHeaderItem("COMMENT", "FITS generated with FITSParser on ", null);
 		header.addItem(item);
-		let now = new Date();
+		const now = new Date();
 		item = new FITSHeaderItem("COMMENT", now.toString(), null);
 		header.addItem(item);
 
-		// moved into parse payload for DATAMIN and DATAMAX
-		// item = new FITSHeaderItem("END", null, null);
-		// header.addItem(item);
-
-		let nblock = Math.ceil(nline / 36);
-		let offset = nblock * 2880;
+		const nblock = Math.ceil(nline / 36);
+		const offset = nblock * 2880;
 
 		header.offset = offset;
 
@@ -143,10 +115,10 @@ export class ParseHeader {
 
 
 	static parseStringValue(u8buffer: Uint8Array): FITSHeaderLine {
-		let textDecoder = new TextDecoder('iso-8859-1');
-		let decoded = textDecoder.decode(u8buffer).trim();
-		let idx = decoded.lastIndexOf("/");
-		let val = decoded.substring(0, idx);
+		const textDecoder = new TextDecoder('iso-8859-1');
+		const decoded = textDecoder.decode(u8buffer).trim();
+		const idx = decoded.lastIndexOf("/");
+		const val = decoded.substring(0, idx);
 		let comment = decoded.substring(idx);
 		if (comment === undefined) {
 			comment = null;
@@ -158,9 +130,9 @@ export class ParseHeader {
 	}
 
 	static parseLogicalValue(u8buffer: Uint8Array): FITSHeaderLine {
-		let textDecoder = new TextDecoder('iso-8859-1');
-		let val = textDecoder.decode(u8buffer).trim();
-		let tokens = val.split("/");
+		const textDecoder = new TextDecoder('iso-8859-1');
+		const val = textDecoder.decode(u8buffer).trim();
+		const tokens = val.split("/");
 		if (tokens[1] === undefined) {
 			return {
 				"val": tokens[0].trim(),
@@ -174,9 +146,9 @@ export class ParseHeader {
 	}
 
 	static parseIntValue(u8buffer: Uint8Array): FITSHeaderLine {
-		let textDecoder = new TextDecoder('iso-8859-1');
-		let val = textDecoder.decode(u8buffer).trim();
-		let tokens = val.split("/");
+		const textDecoder = new TextDecoder('iso-8859-1');
+		const val = textDecoder.decode(u8buffer).trim();
+		const tokens = val.split("/");
 		if (tokens[1] === undefined) {
 			return {
 				"val": parseInt(tokens[0].trim()),
@@ -190,9 +162,9 @@ export class ParseHeader {
 	}
 
 	static parseFloatValue(u8buffer: Uint8Array): FITSHeaderLine {
-		let textDecoder = new TextDecoder('iso-8859-1');
-		let val = textDecoder.decode(u8buffer).trim();
-		let tokens = val.split("/");
+		const textDecoder = new TextDecoder('iso-8859-1');
+		const val = textDecoder.decode(u8buffer).trim();
+		const tokens = val.split("/");
 		if (tokens[1] === undefined) {
 			return {
 				"val": parseFloat(tokens[0].trim()),

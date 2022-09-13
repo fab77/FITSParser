@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>Webpack App</title>
     <base href="."/>    
-</head>
+<script defer src="main.js"></script></head>
 
 <body>
     <h1>Hello world!</h1>
@@ -17,6 +17,7 @@
         promise.then( (fits) => {
             console.log(fits);    
         });
+        console.log(new FITSioAPI.FITSHeaderItem("test"));
     </script>
 </body>
 

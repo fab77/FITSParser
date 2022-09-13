@@ -1,21 +1,26 @@
-import { readdirSync, existsSync, copyFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { join, dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// import { readdirSync, existsSync, copyFileSync } from 'fs';
+
+// import { fileURLToPath } from 'url';
+// import { join, dirname } from 'path';
+// const url = require ('url');
+const path = require( 'path');
+
+const fs = require ('fs');
+// const __filename = url.fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const TARGET = './dist';
 
-readdirSync(TARGET).forEach((file) => {
-  const entry = join(TARGET, file);
-  const output = join(__dirname, file);
+fs.readdirSync(TARGET).forEach((file) => {
+  const entry = path.join(TARGET, file);
+  const output = path.join(__dirname, file);
 
-  if (existsSync(output)) {
+  if (fs.existsSync(output)) {
     throw new Error(
       `Can't unwrap dist. File "${file}" already exists in root folder.`,
     );
   } else {
-    copyFileSync(entry, output);
+    fs.copyFileSync(entry, output);
   }
 });
 

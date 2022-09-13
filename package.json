@@ -1,8 +1,7 @@
 {
-  "name": "jsfitio",
+  "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
   "version": "1.0.0",
-  "private": true,
   "keywords": [
     "FITS",
     "FITS I/O"
@@ -39,8 +38,8 @@
     "@types/mini-css-extract-plugin": "^2.5.1",
     "@types/node-fetch": "^2.6.2",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
     "clean-webpack-plugin": "^4.0.0",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",

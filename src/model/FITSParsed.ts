@@ -5,3 +5,4 @@ export interface FITSParsed {
 	// data: Uint8Array[][];
     data: Array<Uint8Array>;
 }
+
