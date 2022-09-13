@@ -1,10 +1,8 @@
-
 // import { FITSParser } from "./FITSParser-browser";
 // import { FITSParser } from "./FITSParser-node";
 
-
 // abstract class FITSParser {
-    
+
 // }
 
 // export class FITSParser {
@@ -17,6 +15,3 @@
 //         }
 //     }
 // }
-
-
-    
