@@ -40,10 +40,6 @@ $ node test/test01.js
 $ node test/test02.js
 ```
 
-### Break down into end to end tests
-```
-$ npm run test:integration
-```
 
 ## Deployment as Node module
 
@@ -51,14 +47,21 @@ $ npm run test:integration
 ```
 import { FITSParser } from 'jsfitio';
 
-const fileuri: string = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
+const fileuri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
 const fp = new FITSParser(fileuri);
-const fitsPromise = fp.loadFITS();
-fitsPromise.then( (fitsProcessed) => {
-    if (fitsProcessed !== null) {
-        let fitsHeader = fitsProcessed.header;
-        console.log(fitsHeader);
-        let fitsData = fitsProcessed.data;
+const promise = fp.loadFITS();
+promise.then(function (fits) {
+    if (fits !== null) {
+        console.log(fits === null || fits === void 0 ? void 0 : fits.header);
+
+        console.log(`BITPIX: ${fits.header.get('BITPIX')}`);
+        console.log(`NAXIS1: ${fits.header.get('NAXIS1')}`);
+        console.log(`NAXIS2: ${fits.header.get('NAXIS2')}`);
+        console.log(`payload bytes length ${fits.data.length * fits.data[0].length}`);
+
+    }
+    else {
+        console.log("Empty data");
     }
 });
 ```
@@ -68,6 +71,10 @@ fitsPromise.then( (fitsProcessed) => {
 ### using FITS available in the local filesystem:
 ```
 import { FITSParser } from 'jsfitio';
+import { FITSHeader } from 'jsfitio';
+import { FITSWriter } from 'jsfitio';
+import { writeFITS } from 'jsfitio'
+import { FITSHeaderItem } from 'jsfitio';
 
 const fileuri: string = "./test/inputs/x0c70103t_c1f.fits";
 const fp = new FITSParser(fileuri);
@@ -75,14 +82,16 @@ const fitsPromise = fp.loadFITS();
 fitsPromise.then( (fitsProcessed) => {
     let fitsHeader = fitsProcessed.header;
     let fitsData = fitsProcessed.data;
-    FITSParser.writeFITS(fits.header, fits.data, "./MyFITS.fits");
+    let fw = new FITSWriter();
+    fw.run(fits.header, fits.data);
+    writeFITS("./MyFITS.fits", fw._fitsData);
 });
 ```
 
 
 ## Deployment as a Javascript library
 
-You need to include "jsfitsio.js" file in your HTML page. Below a sample.
+You need to include "jsfitsio.js" (take it from _bundles directory) file in your HTML page. Below a sample.
 
 ```
 <!doctype html>
@@ -99,11 +108,17 @@ You need to include "jsfitsio.js" file in your HTML page. Below a sample.
     <h2>jsFITS I/O web integration sample</h2>
     <script src="./jsfitsio.js"></script>
     <script>
-        let promise = FITSioAPI.default("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits")
-        promise.then( (fitsProcessed) => {
-            let fitsHeader = fitsProcessed.header;
-            let fitsData = fitsProcessed.data;
-            console.log(fitsHeader);
+        let fitsURL = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
+        let fp = new jsfitsio.FITSParser(fitsURL);
+        let promise = fp.loadFITS();
+        promise.then( (fits) => {
+            if (fits !== null) {
+                console.log(fits?.header);
+                const blobUrl = jsfitsio.FITSParser.generateFITS(fits.header, fits.data);
+                console.log(blobUrl);
+            } else {
+                console.log("Empty data");
+            }
         });
     </script>
 </body>
