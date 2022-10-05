@@ -1,38 +1,67 @@
 {
-    "type": "module",
-    "name": "fitsparser",
-    "description": "Utility for reading and writing standard FITS files.",
-    "sideEffects": false,
-    "version": "0.1.0",
-    "main": "src/FITSParser.js",
-    "private": true,
-    "module": "src/FITSParser.js",
-    "keywords": [],
-    "author": "Fabrizio Giordano (fab77)",
-    "license": "GNU Affero General Public License v3.0",
-    "homepage": "https://github.com/fab77/FITSParser#readme",
-    "scripts": {
-        "build": "webpack --config webpack.dev-testing.js",
-        "test": "mocha --require esm"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/fab77/FITSParser.git"
-    },
-    "bugs": {
-        "url": "https://github.com/fab77/FITSParser/issues"
-    },
-    "devDependencies": {
-        "@babel/core": "^7.11.4",
-        "@babel/plugin-proposal-class-properties": "^7.10.4",
-        "@babel/plugin-proposal-private-methods": "^7.10.4",
-        "@babel/preset-env": "^7.11.0",
-        "babel-loader": "^8.1.0",
-        "clean-webpack-plugin": "^4.0.0",
-        "esm": "^3.2.25",
-        "mocha": "^9.1.3",
-        "node-fetch": "^3.0.0",
-        "webpack": "^5.60.0",
-        "webpack-cli": "^4.9.0"
+  "name": "jsfitsio",
+  "description": "FITS I/O javascript library.",
+  "version": "1.1.0",
+  "keywords": [
+    "FITS",
+    "FITS I/O",
+    "FITS in a browser"
+  ],
+  "author": "Fabrizio Giordano (fab77)",
+  "license": "MIT",
+  "homepage": "https://github.com/fab77/FITSParser#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fab77/FITSParser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fab77/FITSParser/issues",
+    "email": "fabriziogiordano77@gmail.com"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib-esm/index.d.ts",
+      "import": "./lib-esm/index.js",
+      "require": "./_bundles/jsfitsio.js"
     }
+  },
+  "main": "./lib-esm/index.js",
+  "types": "./lib-esm/index.d.ts",
+  "files": [
+    "lib-esm/"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf _bundles lib-esm",
+    "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
+    "build:prod": "npm run clean && tsc && webpack --mode=production",
+    "webtest": "cp _bundles/* webtest/; node server.cjs",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test:esm": "tsc -m es6 test.ts; node test.js",
+    "test": "jest --runInBand",
+    "test:unit": "jest .*/.*.unit.spec.ts --runInBand",
+    "test:integration": "jest .*/.*.integration.spec.ts --runInBand",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/node": "^18.7.23",
+    "node-static": "^0.7.11",
+    "shx": "^0.3.4",
+    "ts-loader": "^9.4.0",
+    "typescript": "^4.8.3",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "blob-polyfill": "^7.0.20220408",
+    "cross-fetch": "^3.1.5",
+    "fs": "^0.0.1-security"
+  }
 }
