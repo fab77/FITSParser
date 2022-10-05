@@ -1,5 +1,7 @@
 # jsFITS I/O library
 
+Project available in github at https://github.com/fab77/FITSParser#readme
+
 Library used to handle FITS files as defined in the "Definition of the Flexible Image Transport System (FITS)" document defined by internation Astronomical Union (IAU)
 
 This library is capable to read and write FITS files where the data are represented in the following formats (BITPIX):
@@ -91,7 +93,7 @@ fitsPromise.then( (fitsProcessed) => {
 
 ## Deployment as a Javascript library
 
-You need to include "jsfitsio.js" (take it from _bundles directory) file in your HTML page. Below a sample.
+You need to include "jsfitsio.js" (take it from _bundles directory in git the repo https://github.com/fab77/FITSParser ) file in your HTML page. Below a sample.
 
 ```
 <!doctype html>
