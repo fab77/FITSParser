@@ -4,7 +4,9 @@
 node_modules
 src
 test
+webtest
 *.tsbuildinfo
 .history/*
 test/output/*
 workspace.code-workspace
+.vscode

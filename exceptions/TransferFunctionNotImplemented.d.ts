@@ -1,1 +1,0 @@
-//# sourceMappingURL=TransferFunctionNotImplemented.d.ts.map
