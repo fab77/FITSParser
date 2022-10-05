@@ -1,4 +1,4 @@
-import { FITSHeader } from "./FITSHeader";
+import { FITSHeader } from "./FITSHeader.js";
 
 export interface FITSParsed {
   header: FITSHeader;

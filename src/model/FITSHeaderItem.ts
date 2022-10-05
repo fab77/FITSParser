@@ -8,12 +8,12 @@
  */
 
 export class FITSHeaderItem {
-  _key: string;
-  _value: string | number;
-  _comment: string;
+  _key: string | undefined;
+  _value: string | number | undefined;
+  _comment: string | undefined;
 
-  constructor(key: string, value?: string | number, comment?: string) {
-    this._key = key;
+  constructor(key?: string, value?: string | number, comment?: string) {
+    this._key = key !== undefined ? key : undefined;
     this._value = value !== undefined ? value : undefined;
     this._comment = comment !== undefined ? comment : undefined;
   }

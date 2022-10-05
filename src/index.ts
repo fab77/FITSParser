@@ -1,19 +1,11 @@
-// import { FITSParser } from "./FITSParser";
-// export const FITSioAPI = function (url: string): Promise<FITSParsed> {
-//   const fp = new FITSParser(url);
-//   return fp.loadFITS();
-// };
-
-export { FITSHeaderItem } from "./model/FITSHeaderItem";
-export { FITSHeader } from "./model/FITSHeader";
-
-import type { FITSHeaderLine } from "./model/FITSHeaderLine";
+export { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+export { FITSHeader } from "./model/FITSHeader.js";
+import type { FITSHeaderLine } from "./model/FITSHeaderLine.js";
 export type { FITSHeaderLine };
-import type { FITSParsed } from "./model/FITSParsed";
+import type { FITSParsed } from "./model/FITSParsed.js";
 export type { FITSParsed };
-
-export { FITSParser } from "./FITSParser";
-export { FITSWriter } from "./FITSWriter";
-export { ParseHeader } from "./ParseHeader";
-export { ParsePayload } from "./ParsePayload";
-export { ParseUtils } from "./ParseUtils";
+export { FITSParser } from "./FITSParser.js";
+export { FITSWriter } from "./FITSWriter.js";
+export { ParseHeader } from "./ParseHeader.js";
+export { ParsePayload } from "./ParsePayload.js";
+export { ParseUtils } from "./ParseUtils.js";

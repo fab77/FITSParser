@@ -54,7 +54,7 @@ export class ParseUtils {
     bytes: Uint8Array,
     ebits: number,
     fbits: number
-  ): number {
+  ): number | undefined {
     // Bytes to bits
     const bits = [];
     for (let i = bytes.length; i; i -= 1) {
@@ -129,7 +129,7 @@ export class ParseUtils {
     offset: number,
     bytes: Uint8Array,
     bitpix: number
-  ): number {
+  ): number | undefined {
     let px_val = undefined; // pixel value
     // let px_val1, px_val2, px_val3, px_val4;
     if (bitpix == 16) {
@@ -171,6 +171,7 @@ export class ParseUtils {
 
     return px_val;
   }
+
 }
 
 // export default ParseUtils;

@@ -1,6 +1,6 @@
-import { FITSHeader } from "./model/FITSHeader";
-import { FITSHeaderItem } from "./model/FITSHeaderItem";
-import { FITSHeaderLine } from "./model/FITSHeaderLine";
+import { FITSHeader } from "./model/FITSHeader.js";
+import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+import { FITSHeaderLine } from "./model/FITSHeaderLine.js";
 /**
  * Summary. (bla bla bla)
  *
@@ -29,8 +29,10 @@ export class ParseHeader {
     let u8val: Uint8Array;
     let u8ind: Uint8Array;
     // let ind: string;
-    let item: FITSHeaderItem;
+    let item: FITSHeaderItem | null;
     let fitsLine: FITSHeaderLine;
+
+    item = null;
 
     while (key !== "END") {
       // line 80 characters
@@ -74,7 +76,7 @@ export class ParseHeader {
         item = new FITSHeaderItem(key, fitsLine.val, fitsLine.comment);
       } else {
         if (key == "COMMENT" || key == "HISTORY") {
-          item = new FITSHeaderItem(key, null, val);
+          item = new FITSHeaderItem(key, undefined, val);
         } else {
           let firstchar = 32;
           for (let i = 0; i < u8val.length; i++) {
@@ -85,25 +87,26 @@ export class ParseHeader {
           }
           if (firstchar == 47) {
             // single / this is the case when no key nor value indicator is defined
-            item = new FITSHeaderItem(null, null, val);
+            item = new FITSHeaderItem(undefined, undefined, val);
           } else if (firstchar == 32) {
             // case when there's a line with only spaces
-            item = new FITSHeaderItem(null, null, null);
+            item = new FITSHeaderItem(undefined, undefined, undefined);
           }
         }
       }
-
-      header.addItem(item);
+      if (item != null) {
+        header.addItem(item);
+      }
     }
 
     item = new FITSHeaderItem(
       "COMMENT",
       "FITS generated with FITSParser on ",
-      null
+      undefined
     );
     header.addItem(item);
     const now = new Date();
-    item = new FITSHeaderItem("COMMENT", now.toString(), null);
+    item = new FITSHeaderItem("COMMENT", now.toString());
     header.addItem(item);
 
     const nblock = Math.ceil(nline / 36);
@@ -120,9 +123,9 @@ export class ParseHeader {
     const idx = decoded.lastIndexOf("/");
     const val = decoded.substring(0, idx);
     let comment = decoded.substring(idx);
-    if (comment === undefined) {
-      comment = null;
-    }
+    // if (comment === undefined) {
+    //   comment = null;
+    // }
     return {
       val: val,
       comment: comment,
@@ -136,7 +139,7 @@ export class ParseHeader {
     if (tokens[1] === undefined) {
       return {
         val: tokens[0].trim(),
-        comment: null,
+        comment: undefined,
       };
     }
     return {
@@ -152,7 +155,7 @@ export class ParseHeader {
     if (tokens[1] === undefined) {
       return {
         val: parseInt(tokens[0].trim()),
-        comment: null,
+        comment: undefined,
       };
     }
     return {
@@ -168,7 +171,7 @@ export class ParseHeader {
     if (tokens[1] === undefined) {
       return {
         val: parseFloat(tokens[0].trim()),
-        comment: null,
+        comment: undefined,
       };
     }
     return {

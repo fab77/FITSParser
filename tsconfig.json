@@ -1,24 +1,24 @@
 {
-  "include": ["src/**/*"],
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
+    "moduleResolution": "node16", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
     "module": "es6",
-    "target": "es6",
-    // Tells TypeScript to read JS files, as
-    // normally they are ignored as source files
-    "allowJs": true,
-    // Generate d.ts files
+    "target": "es6",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
+    "lib": ["es6", "dom"],
+    "outDir": "lib-esm",
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
     "declaration": true,
-    // This compiler run should
-    // only output d.ts files
-    "emitDeclarationOnly": false,
-    // Types should go into this directory.
-    // Removing this would place the .d.ts files
-    // next to the .js files
-    "outDir": "dist",
-    // go to js file when using IDE functions like
-    // "Go to Definition" in VSCode
     "declarationMap": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
 }

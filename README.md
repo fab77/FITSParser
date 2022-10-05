@@ -29,9 +29,16 @@ $ npm install jsfitio
 Download the file "jfitsio.js" and include it in your web page as below:
 
 
-## Running the tests
-
-Test defined with "jest"
+## Running the tests (still manual)
+First compile the code:
+```
+$ node start:dev
+```
+To test jsfitsio in node:
+```
+$ node test/test01.js
+$ node test/test02.js
+```
 
 ### Break down into end to end tests
 ```
@@ -40,7 +47,7 @@ $ npm run test:integration
 
 ## Deployment as Node module
 
-### using FITS file available in the web:
+### reading FITS file available in the web:
 ```
 import { FITSParser } from 'jsfitio';
 
@@ -48,11 +55,15 @@ const fileuri: string = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips
 const fp = new FITSParser(fileuri);
 const fitsPromise = fp.loadFITS();
 fitsPromise.then( (fitsProcessed) => {
-    let fitsHeader = fitsProcessed.header;
-    let fitsData = fitsProcessed.data;
-    FITSParser.writeFITS(fits.header, fits.data, "./MyFITS.fits");
+    if (fitsProcessed !== null) {
+        let fitsHeader = fitsProcessed.header;
+        console.log(fitsHeader);
+        let fitsData = fitsProcessed.data;
+    }
 });
 ```
+
+
 
 ### using FITS available in the local filesystem:
 ```

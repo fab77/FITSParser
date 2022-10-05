@@ -17,19 +17,22 @@
  * -64	64-bit IEEE double precision floating point
  *
  */
-// import { Blob } from 'buffer';
-import * as fs from "fs";
-import { FITSHeaderItem } from "./model/FITSHeaderItem";
-import { ParseUtils } from "./ParseUtils";
-import * as path from 'path';
-import { FITSHeader } from "./model/FITSHeader";
+import { Blob } from 'blob-polyfill';
+import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+import { ParseUtils } from "./ParseUtils.js";
+import { FITSHeader } from "./model/FITSHeader.js";
+import fs from 'node:fs/promises';
 
 export class FITSWriter {
   _headerArray: Uint8Array;
   _payloadArray: Uint8Array[];
   _fitsData: Uint8Array;
 
-  // constructor () {}
+  constructor() {
+    this._headerArray = new Uint8Array();
+    this._payloadArray = new Array<Uint8Array>();
+    this._fitsData = new Uint8Array();
+  }
 
   run(header: FITSHeader, rawdata: Uint8Array[]) {
     this.prepareHeader(header);
@@ -38,13 +41,16 @@ export class FITSWriter {
   }
 
   prepareHeader(headerDetails: FITSHeader) {
-    const item = new FITSHeaderItem("END", null, null);
+    const item = new FITSHeaderItem("END");
     headerDetails.addItem(item);
 
     let str = "";
     for (let i = 0; i < headerDetails.getItemList().length; i++) {
       const item: FITSHeaderItem = headerDetails.getItemList()[i];
-      str += this.formatHeaderLine(item.key, item.value, item.comment);
+      let s = this.formatHeaderLine(item);
+      if (s !== undefined) {
+        str += s;
+      }
     }
 
     const strBytelen = new TextEncoder().encode(str).length;
@@ -64,8 +70,12 @@ export class FITSWriter {
     }
   }
 
-  formatHeaderLine(keyword: string, value: string | number, comment: string) {
+  // formatHeaderLine(item: string | undefined, value: string | number, comment: string) {
+  formatHeaderLine(item: FITSHeaderItem) {
     let str;
+    let keyword = item.key;
+    let value = item.value;
+    let comment = item.comment;
 
     if (keyword !== null && keyword !== undefined) {
       str = keyword;
@@ -139,7 +149,7 @@ export class FITSWriter {
   prepareFITS() {
     const bytes = new Uint8Array(
       this._headerArray.length +
-        this._payloadArray[0].length * this._payloadArray.length
+      this._payloadArray[0].length * this._payloadArray.length
     );
 
     bytes.set(this._headerArray, 0);
@@ -151,21 +161,20 @@ export class FITSWriter {
     this._fitsData = bytes;
   }
 
-  writeFITS(fileuri: string) {
-    const dirname = path.dirname(fileuri);
-    fs.mkdir(dirname, { recursive: true }, (err) => {
-      if (err) throw err;
-    });
-    if (fs.existsSync(dirname)) {
-      fs.writeFileSync(fileuri, this._fitsData);
-    } else {
-      console.error(dirname + " doesn't exist");
-    }
-  }
+  // writeFITS(fileuri: string) {
+  //   // const dirname = path.dirname(fileuri);
+  //   // fs.mkdir(dirname, { recursive: true });
+  //   fs.writeFile(fileuri, this._fitsData);
+  //   // if (fs.existsSync(dirname)) {
+  //   //   fs.writeFileSync(fileuri, this._fitsData);
+  //   // } else {
+  //   //   console.error(dirname + " doesn't exist");
+  //   // }
+  // }
 
-  typedArrayToURL() {
-    // return URL.createObjectURL(new Blob([this._fitsData.buffer], {type: 'application/fits'}));
+  typedArrayToURL(): string {
     const b = new Blob([this._fitsData], { type: "application/fits" });
+    // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
     return URL.createObjectURL(b);
   }
 }

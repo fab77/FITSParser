@@ -1,4 +1,4 @@
-import { FITSHeaderItem } from "./FITSHeaderItem";
+import { FITSHeaderItem } from "./FITSHeaderItem.js";
 
 /**
  * Summary. (bla bla bla)
@@ -12,11 +12,12 @@ import { FITSHeaderItem } from "./FITSHeaderItem";
 // reference FTIS standard doc https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
 
 export class FITSHeader extends Map {
-  _offset: number;
+  _offset: number | undefined;
   _items: FITSHeaderItem[];
 
   constructor() {
     super();
+    this._offset = undefined;
     this._items = [];
   }
 
@@ -44,53 +45,61 @@ export class FITSHeader extends Map {
   }
 
   addItemAtTheBeginning(item: FITSHeaderItem) {
-    if (
-      [
-        "SIMPLE",
-        "BITPIX",
-        "NAXIS",
-        "NAXIS1",
-        "NAXIS2",
-        "BLANK",
-        "BZERO",
-        "BSCALE",
-        "DATAMIN",
-        "DATAMAX",
-        "NPIX",
-        "ORDER",
-        "CRPIX1",
-        "CRPIX2",
-        "CDELT1",
-        "CDELT2",
-      ].includes(item.key)
-    ) {
-      this.set(item.key, item.value);
+    if (item.key !== undefined) {
+      if (
+        [
+          "SIMPLE",
+          "BITPIX",
+          "NAXIS",
+          "NAXIS1",
+          "NAXIS2",
+          "BLANK",
+          "BZERO",
+          "BSCALE",
+          "DATAMIN",
+          "DATAMAX",
+          "NPIX",
+          "ORDER",
+          "CRPIX1",
+          "CRPIX2",
+          "CDELT1",
+          "CDELT2",
+        ].includes(item.key)
+      ) {
+        this.set(item.key, item.value);
+      }
     }
+    
     const newitemlist = [item].concat(this._items);
     this._items = newitemlist;
   }
+
+
+
   addItem(item: FITSHeaderItem) {
-    if (
-      [
-        "SIMPLE",
-        "BITPIX",
-        "NAXIS",
-        "NAXIS1",
-        "NAXIS2",
-        "BLANK",
-        "BZERO",
-        "BSCALE",
-        "DATAMIN",
-        "DATAMAX",
-        "NPIX",
-        "ORDER",
-        "CRPIX1",
-        "CRPIX2",
-        "CDELT1",
-        "CDELT2",
-      ].includes(item.key)
-    ) {
-      this.set(item.key, item.value);
+    if (item.key !== undefined) {
+      if (
+        [
+          "SIMPLE",
+          "BITPIX",
+          "NAXIS",
+          "NAXIS1",
+          "NAXIS2",
+          "BLANK",
+          "BZERO",
+          "BSCALE",
+          "DATAMIN",
+          "DATAMAX",
+          "NPIX",
+          "ORDER",
+          "CRPIX1",
+          "CRPIX2",
+          "CDELT1",
+          "CDELT2",
+        ].includes(item.key)
+      ) {
+        this.set(item.key, item.value);
+      }
     }
     this._items.push(item);
   }

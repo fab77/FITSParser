@@ -9,8 +9,8 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 import { FITSHeader } from "./model/FITSHeader.js";
-import { FITSHeaderItem } from "./model/FITSHeaderItem";
-import { ParseUtils } from "./ParseUtils";
+import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+import { ParseUtils } from "./ParseUtils.js";
 
 // let colorsMap = new Map();
 // colorsMap.set("grayscale","grayscale");
@@ -25,20 +25,30 @@ export class ParsePayload {
   _BZERO: number | undefined;
   _BSCALE: number | undefined;
   _BLANK: number | undefined;
-  _BITPIX: number;
-  _NAXIS1: number;
-  _NAXIS2: number;
-  _DATAMIN: number;
-  _DATAMAX: number;
+  _BITPIX: number | undefined;
+  _NAXIS1: number | undefined;
+  _NAXIS2: number | undefined;
+  _DATAMIN: number | undefined;
+  _DATAMAX: number | undefined;
   _physicalblank: number | undefined;
 
   constructor(fitsheader: FITSHeader, rawdata: Uint8Array) {
-    // let offset = fitsheader.offset;
+
+    this._u8data = new Uint8Array();
+    this._BZERO = undefined;
+    this._BSCALE = undefined;
+    this._BLANK = undefined;
+    this._BITPIX = undefined;
+    this._NAXIS1 = undefined;
+    this._NAXIS2 = undefined;
+    this._DATAMIN = undefined;
+    this._DATAMAX = undefined;
+    this._physicalblank = undefined;
+
     const buffer = rawdata.slice(fitsheader.offset);
     this._u8data = new Uint8Array(buffer);
-    // this._u8data = new Uint8Array(rawdata, 2880);
-    // console.log(this._u8data.byteOffset);
     this.init(fitsheader);
+
   }
 
   init(fitsheader: FITSHeader) {
@@ -82,8 +92,11 @@ export class ParsePayload {
     // fitsheader.addItem(item);
   }
 
-  computePhysicalMinAndMax(): [number, number] {
+  computePhysicalMinAndMax(): [number | undefined, number | undefined] {
     let i = 0;
+    if (this._BITPIX === undefined) {
+      throw new Error("BITPIX is not defined");
+    }
     const bytesXelem = Math.abs(this._BITPIX / 8);
     const pxLength = this._u8data.byteLength / bytesXelem;
     let px_val, ph_val;
@@ -97,7 +110,17 @@ export class ParsePayload {
     while (i < pxLength) {
       // px_val = this.extractPixelValue(bytesXelem*i);
       px_val = this.extractPixelValue(bytesXelem * i);
+      if (px_val === undefined) {
+        i++;
+        continue;
+      }
       ph_val = this.pixel2physicalValue(px_val);
+      if (min === undefined) {
+        min = ph_val;
+      }
+      if (max === undefined) {
+        max = ph_val;
+      }
       //TODO check below if
       if (this._physicalblank === undefined || this._physicalblank !== ph_val) {
         if (ph_val !== undefined && (ph_val < min || min === undefined)) {
@@ -116,7 +139,16 @@ export class ParsePayload {
   parse(): Array<Uint8Array> {
     // let px_val; // pixel array value
     // let ph_val = undefined; // pixel physical value
-
+    if (this._BITPIX === undefined) {
+      throw new Error("BITPIX is undefined")
+    }
+    if (this._NAXIS1 === undefined) {
+      throw new Error("NAXIS1 is undefined")
+    }
+    if (this._NAXIS2 === undefined) {
+      throw new Error("NAXIS2 is undefined")
+    }
+    
     const bytesXelem = Math.abs(this._BITPIX / 8);
     let pxLength = this._u8data.byteLength / bytesXelem;
     pxLength = this._NAXIS1 * this._NAXIS2;
@@ -155,7 +187,7 @@ export class ParsePayload {
   }
 
   /** this can be deleted */
-  extractPixelValue(offset: number): number {
+  extractPixelValue(offset: number): number | undefined {
     let px_val = undefined; // pixel value
     if (this._BITPIX == 16) {
       // 16-bit 2's complement binary integer
@@ -197,10 +229,11 @@ export class ParsePayload {
     return px_val;
   }
 
-  pixel2physicalValue(pxval: number): number | undefined {
-    if (pxval !== undefined) {
-      return this._BZERO + this._BSCALE * pxval;
+  pixel2physicalValue(pxval: number): number{
+    if (this._BZERO === undefined || this._BSCALE === undefined) {
+      throw new Error("Either BZERO or BSCALE is undefined");
     }
-    return undefined;
+    return this._BZERO + this._BSCALE * pxval;
+    
   }
 }

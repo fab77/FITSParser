@@ -1,0 +1,10 @@
+.*
+**/tsconfig.json
+**/webpack.config.js
+node_modules
+src
+test
+*.tsbuildinfo
+.history/*
+test/output/*
+workspace.code-workspace

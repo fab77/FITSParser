@@ -4,13 +4,14 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import { FITSWriter } from "./FITSWriter";
-import { ParsePayload } from "./ParsePayload";
-import { ParseHeader } from "./ParseHeader";
-import { FITSHeader } from "./model/FITSHeader";
-import { FITSParsed } from "./model/FITSParsed";
-import { readFile } from "fs/promises";
-import fetch from "node-fetch";
+import { FITSWriter } from "./FITSWriter.js";
+import { ParsePayload } from "./ParsePayload.js";
+import { ParseHeader } from "./ParseHeader.js";
+import { FITSHeader } from "./model/FITSHeader.js";
+import { FITSParsed } from "./model/FITSParsed.js";
+import fetch from 'cross-fetch';
+// import { readFile } from "node:fs/promises";
+// import fetch from "node-fetch";
 
 export class FITSParser {
   _url: string;
@@ -19,11 +20,11 @@ export class FITSParser {
     this._url = url;
   }
 
-  async loadFITS(): Promise<FITSParsed> {
+  async loadFITS(): Promise<FITSParsed | null> {
     return this.getFile(this._url)
       .then((rawdata) => {
         if (rawdata !== null) {
-          const  uint8 = new Uint8Array(rawdata);
+          const uint8 = new Uint8Array(rawdata);
           const fits = this.processFits(uint8);
           return fits;
         }
@@ -55,81 +56,31 @@ export class FITSParser {
     };
   }
 
-  static writeFITS(header: FITSHeader, rawdata: Uint8Array[], fileuri: string) {
+  // static writeFITS(header: FITSHeader, rawdata: Uint8Array[], fileuri: string) {
+  //   const writer = new FITSWriter();
+  //   writer.run(header, rawdata);
+  //   writer.writeFITS(fileuri);
+  // }
+
+  static generateFITS(header: FITSHeader, rawdata: Uint8Array[]) {
     const writer = new FITSWriter();
     writer.run(header, rawdata);
-    writer.writeFITS(fileuri);
+    return writer.typedArrayToURL();
   }
 
   async getFile(uri: string): Promise<ArrayBuffer> {
-    if (!uri.substring(0, 5).toLowerCase().includes("http")) {
-      // local file
-      const promise = await readFile(uri);
-      return promise;
-    } else if (typeof window !== "undefined") {
-      // browser
-      const data = await window
-        .fetch(uri, {
-          method: "GET",
-          mode: "cors",
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-          },
-        })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(
-              "File not loaded. HTTP error: " +
-                res.status +
-                " " +
-                res.statusText
-            );
-          } else {
-            return res.arrayBuffer();
-          }
-        })
-        .catch(function (err) {
-          throw new Error("[FITSParser->getFile] " + err.response.data.message);
-        });
-      return data;
-    } else {
-      // node
 
-      const data = await fetch(uri, {
-        method: "GET",
-        headers: {
-          Accept: "image/fits",
-          "Content-Type": "image/fits",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control"
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            if (res.status == 404) {
-              return null;
-            } else {
-              throw new Error(
-                "File not loaded. HTTP error: " +
-                  res.status +
-                  " " +
-                  res.statusText
-              );
-            }
-          } else {
-            return res.arrayBuffer();
-          }
-        })
-        .catch((error) => {
-          if (error?.response?.data?.message) {
-            throw new Error(
-              "[FITSParser->getFile] " + error.response.data.message
-            );
-          }
-          throw error;
-        });
-      return data;
+    // if (!uri.substring(0, 5).toLowerCase().includes("http")) {
+    //   const promise = await fs.readFile(uri);
+    //   return promise;
+    // } else {
+    const response = await fetch(uri);
+    if (!response.ok) {
+      return new ArrayBuffer(0);
+    } else {
+      return response.arrayBuffer();
     }
+    // }
+
   }
 }
