@@ -36,15 +36,7 @@
     "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
     "build:prod": "npm run clean && tsc && webpack --mode=production",
     "webtest": "cp _bundles/* webtest/; node server.cjs",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "test:esm": "tsc -m es6 test.ts; node test.js",
-    "test": "jest --runInBand",
-    "test:unit": "jest .*/.*.unit.spec.ts --runInBand",
-    "test:integration": "jest .*/.*.integration.spec.ts --runInBand",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:esm": "tsc -m es6 test.ts; node test.js"
   },
   "engines": {
     "node": ">=16.0.0"
