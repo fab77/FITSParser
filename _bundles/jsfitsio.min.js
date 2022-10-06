@@ -2316,9 +2316,9 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-/*!**********************!*\
-  !*** ./src/index.ts ***!
-  \**********************/
+/*!*************************!*\
+  !*** ./src/index-wp.ts ***!
+  \*************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "FITSHeader": () => (/* reexport safe */ _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeader),

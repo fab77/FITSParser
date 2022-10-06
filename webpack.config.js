@@ -6,7 +6,7 @@ const __dirname = path.dirname(__filename);
 
 
 const PATHS = {
-  entryPoint4Browser: path.resolve(__dirname, 'src/index.ts'),
+  entryPoint4Browser: path.resolve(__dirname, 'src/index-wp.ts'),
   bundles: path.resolve(__dirname, '_bundles'),
 }
 

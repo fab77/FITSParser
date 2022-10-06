@@ -12,12 +12,13 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": [
-    "src/**/*"
-  ],
   "exclude": [
     "node_modules",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "src/index-wp.ts"
+  ],
+  "include": [
+    "src/**/*"
   ],
   "compileOnSave": false,
   "buildOnSave": false
