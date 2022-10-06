@@ -9,9 +9,8 @@ import { ParsePayload } from "./ParsePayload.js";
 import { ParseHeader } from "./ParseHeader.js";
 import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSParsed } from "./model/FITSParsed.js";
-import fetch from 'cross-fetch';
+// import fetch from 'cross-fetch';
 // import { readFile } from "node:fs/promises";
-// import fetch from "node-fetch";
 
 export class FITSParser {
   _url: string;
@@ -56,31 +55,28 @@ export class FITSParser {
     };
   }
 
-  // static writeFITS(header: FITSHeader, rawdata: Uint8Array[], fileuri: string) {
-  //   const writer = new FITSWriter();
-  //   writer.run(header, rawdata);
-  //   writer.writeFITS(fileuri);
-  // }
-
   static generateFITS(header: FITSHeader, rawdata: Uint8Array[]) {
     const writer = new FITSWriter();
     writer.run(header, rawdata);
     return writer.typedArrayToURL();
   }
 
-  async getFile(uri: string): Promise<ArrayBuffer> {
+  async getFile(uri: string) {
 
-    // if (!uri.substring(0, 5).toLowerCase().includes("http")) {
-    //   const promise = await fs.readFile(uri);
-    //   return promise;
-    // } else {
-    const response = await fetch(uri);
-    if (!response.ok) {
-      return new ArrayBuffer(0);
+    let data;
+    if (!uri.substring(0, 5).toLowerCase().includes("http")) {
+
+      let p = await import('./getLocalFile.js')
+      data = await p.getLocalFile(uri);
+
     } else {
-      return response.arrayBuffer();
+
+      let p = await import('./getFile.js')
+      data = await p.getFile(uri);
     }
-    // }
+    return data;
 
   }
+
+
 }

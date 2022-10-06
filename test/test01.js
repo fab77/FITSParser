@@ -4,9 +4,11 @@ import { FITSParser } from '../lib-esm/FITSParser.js';
 
 console.log("Download fits and parse it (shows some header keywords and the payload data bytes length)");
 const fileuri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
+console.log(`loading ${fileuri}`);
 const fp = new FITSParser(fileuri);
 const promise = fp.loadFITS();
 promise.then(function (fits) {
+    console.log("file parsed");
     if (fits !== null) {
         console.log(fits === null || fits === void 0 ? void 0 : fits.header);
 
@@ -20,4 +22,5 @@ promise.then(function (fits) {
         console.log("Empty data");
     }
 });
+
 

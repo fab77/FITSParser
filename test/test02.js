@@ -1,9 +1,10 @@
 
 import { FITSHeader } from '../lib-esm/model/FITSHeader.js';
 import { FITSWriter } from '../lib-esm/FITSWriter.js';
-import { writeFITS } from '../lib-esm/FSWriter.js'
 import { FITSHeaderItem } from '../lib-esm/model/FITSHeaderItem.js';
 import myfits from './test02.json' assert {type: 'json'};
+import fs from 'node:fs/promises';
+
 
 console.log("Write fits file in the local FS starting from data passed (in a JSON in this case)");
 let header = new FITSHeader();
@@ -52,9 +53,9 @@ if (hBitpix.value == -64) { // 64bitIEEEfloatingPoint
 if(fitsData.length > 0) {
     let phvalArrayUint8 = new Uint8Array(fitsData.buffer);
     let uint8 = [];
-    for (let h = 0; h < phvalArrayUint8.length; h += (hNaxis1 * bytesXWord)) {
-        let u8 = new Uint8Array(hNaxis2 * bytesXWord);
-        for (let r = 0; r < (hNaxis2 * bytesXWord); r++) {
+    for (let h = 0; h < phvalArrayUint8.length; h += (hNaxis1.value * bytesXWord)) {
+        let u8 = new Uint8Array(hNaxis2.value * bytesXWord);
+        for (let r = 0; r < (hNaxis2.value * bytesXWord); r++) {
             u8[r] = phvalArrayUint8[h + r];
         }
         uint8.push(u8);
@@ -62,5 +63,5 @@ if(fitsData.length > 0) {
     
     let fw = new FITSWriter();
     fw.run(header, uint8);
-    writeFITS("./test/output/test02.fits", fw._fitsData);
+    fs.writeFile("./test/output/test02.fits", fw._fitsData);
 }

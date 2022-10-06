@@ -21,7 +21,7 @@ import { Blob } from 'blob-polyfill';
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
 import { ParseUtils } from "./ParseUtils.js";
 import { FITSHeader } from "./model/FITSHeader.js";
-import fs from 'node:fs/promises';
+// import fs from 'node:fs/promises';
 
 export class FITSWriter {
   _headerArray: Uint8Array;

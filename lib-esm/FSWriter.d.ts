@@ -1,2 +1,2 @@
-export declare function writeFITS(fileuri: string, fitsData: Uint8Array): void;
+export {};
 //# sourceMappingURL=FSWriter.d.ts.map

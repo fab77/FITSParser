@@ -11,6 +11,6 @@ export declare class FITSParser {
     loadFITS(): Promise<FITSParsed | null>;
     processFits(rawdata: Uint8Array): FITSParsed;
     static generateFITS(header: FITSHeader, rawdata: Uint8Array[]): string;
-    getFile(uri: string): Promise<ArrayBuffer>;
+    getFile(uri: string): Promise<any>;
 }
 //# sourceMappingURL=FITSParser.d.ts.map

@@ -47,7 +47,7 @@ export class ParseHeader {
                         break;
                     }
                 }
-                if (firstchar == 39) {
+                if (firstchar == 39 || !Number(val)) {
                     // value starts with '
                     // [ival, icomment]
                     fitsLine = ParseHeader.parseStringValue(u8val);

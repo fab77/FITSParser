@@ -15,9 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { FITSWriter } from "./FITSWriter.js";
 import { ParsePayload } from "./ParsePayload.js";
 import { ParseHeader } from "./ParseHeader.js";
-import fetch from 'cross-fetch';
+// import fetch from 'cross-fetch';
 // import { readFile } from "node:fs/promises";
-// import fetch from "node-fetch";
 export class FITSParser {
     constructor(url) {
         this._url = url;
@@ -56,11 +55,6 @@ export class FITSParser {
             data: pixelvalues,
         };
     }
-    // static writeFITS(header: FITSHeader, rawdata: Uint8Array[], fileuri: string) {
-    //   const writer = new FITSWriter();
-    //   writer.run(header, rawdata);
-    //   writer.writeFITS(fileuri);
-    // }
     static generateFITS(header, rawdata) {
         const writer = new FITSWriter();
         writer.run(header, rawdata);
@@ -68,18 +62,16 @@ export class FITSParser {
     }
     getFile(uri) {
         return __awaiter(this, void 0, void 0, function* () {
-            // if (!uri.substring(0, 5).toLowerCase().includes("http")) {
-            //   const promise = await fs.readFile(uri);
-            //   return promise;
-            // } else {
-            const response = yield fetch(uri);
-            if (!response.ok) {
-                return new ArrayBuffer(0);
+            let data;
+            if (!uri.substring(0, 5).toLowerCase().includes("http")) {
+                let p = yield import('./getLocalFile.js');
+                data = yield p.getLocalFile(uri);
             }
             else {
-                return response.arrayBuffer();
+                let p = yield import('./getFile.js');
+                data = yield p.getFile(uri);
             }
-            // }
+            return data;
         });
     }
 }
