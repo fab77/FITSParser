@@ -765,7 +765,7 @@ class FITSParser {
         return __awaiter(this, void 0, void 0, function* () {
             return this.getFile(this._url)
                 .then((rawdata) => {
-                if (rawdata !== null) {
+                if (rawdata !== null && rawdata.byteLength > 0) {
                     const uint8 = new Uint8Array(rawdata);
                     const fits = this.processFits(uint8);
                     return fits;
@@ -1035,7 +1035,7 @@ class ParseHeader {
         let item;
         let fitsLine;
         item = null;
-        while (key !== "END") {
+        while (key !== "END" && rawdata.length > 0) {
             // line 80 characters
             u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
             nline++;
@@ -1731,7 +1731,7 @@ class FITSHeaderItem {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"522cd2fba03c0e90d330","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"2feb2813035f192d10da"}[chunkId] + "";
+/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"9afec65ea2038faa319b","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"2feb2813035f192d10da"}[chunkId] + "";
 /******/ 		};
 /******/ 	})();
 /******/ 	

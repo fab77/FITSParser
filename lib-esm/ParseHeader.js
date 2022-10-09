@@ -26,7 +26,7 @@ export class ParseHeader {
         let item;
         let fitsLine;
         item = null;
-        while (key !== "END") {
+        while (key !== "END" && rawdata.length > 0) {
             // line 80 characters
             u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
             nline++;

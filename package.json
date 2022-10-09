@@ -1,7 +1,7 @@
 {
   "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "keywords": [
     "FITS",
     "FITS I/O",
@@ -29,7 +29,8 @@
   "main": "./lib-esm/index.js",
   "types": "./lib-esm/index.d.ts",
   "files": [
-    "lib-esm/"
+    "lib-esm/",
+    "_bundles"
   ],
   "scripts": {
     "clean": "shx rm -rf _bundles lib-esm",
@@ -55,5 +56,12 @@
     "blob-polyfill": "^7.0.20220408",
     "cross-fetch": "^3.1.5",
     "fs": "^0.0.1-security"
+  }
+  ,
+  "browser": {
+    "fs": false,
+    "node:fs/promises": false,
+    "node:fs": false,
+    "fs/promises": false
   }
 }

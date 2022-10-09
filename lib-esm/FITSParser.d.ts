@@ -3,6 +3,7 @@
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
+/// <reference types="node" resolution-mode="require"/>
 import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSParsed } from "./model/FITSParsed.js";
 export declare class FITSParser {
@@ -11,6 +12,6 @@ export declare class FITSParser {
     loadFITS(): Promise<FITSParsed | null>;
     processFits(rawdata: Uint8Array): FITSParsed;
     static generateFITS(header: FITSHeader, rawdata: Uint8Array[]): string;
-    getFile(uri: string): Promise<any>;
+    getFile(uri: string): Promise<Buffer | ArrayBuffer>;
 }
 //# sourceMappingURL=FITSParser.d.ts.map

@@ -1056,7 +1056,7 @@ class ParseHeader {
                         break;
                     }
                 }
-                if (firstchar == 39) {
+                if (firstchar == 39 || !Number(val)) {
                     // value starts with '
                     // [ival, icomment]
                     fitsLine = ParseHeader.parseStringValue(u8val);
@@ -1731,7 +1731,7 @@ class FITSHeaderItem {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"9ac6107a54748f9760b7","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"2feb2813035f192d10da"}[chunkId] + "";
+/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"9afec65ea2038faa319b","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"2feb2813035f192d10da"}[chunkId] + "";
 /******/ 		};
 /******/ 	})();
 /******/ 	

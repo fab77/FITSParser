@@ -25,7 +25,7 @@ export class FITSParser {
         return __awaiter(this, void 0, void 0, function* () {
             return this.getFile(this._url)
                 .then((rawdata) => {
-                if (rawdata !== null) {
+                if (rawdata !== null && rawdata.byteLength > 0) {
                     const uint8 = new Uint8Array(rawdata);
                     const fits = this.processFits(uint8);
                     return fits;

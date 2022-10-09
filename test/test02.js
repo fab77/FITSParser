@@ -64,4 +64,5 @@ if(fitsData.length > 0) {
     let fw = new FITSWriter();
     fw.run(header, uint8);
     fs.writeFile("./test/output/test02.fits", fw._fitsData);
+    console.log("File created at ./test/output/test02.fits")
 }

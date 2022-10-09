@@ -22,7 +22,7 @@ export class FITSParser {
   async loadFITS(): Promise<FITSParsed | null> {
     return this.getFile(this._url)
       .then((rawdata) => {
-        if (rawdata !== null) {
+        if (rawdata !== null && rawdata.byteLength > 0) {
           const uint8 = new Uint8Array(rawdata);
           const fits = this.processFits(uint8);
           return fits;
@@ -61,7 +61,7 @@ export class FITSParser {
     return writer.typedArrayToURL();
   }
 
-  async getFile(uri: string) {
+  async getFile(uri: string): Promise<Buffer | ArrayBuffer> {
 
     let data;
     if (!uri.substring(0, 5).toLowerCase().includes("http")) {
