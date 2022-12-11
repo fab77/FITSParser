@@ -67,14 +67,26 @@ export class FITSParser {
     if (!uri.substring(0, 5).toLowerCase().includes("http")) {
 
       let p = await import('./getLocalFile.js')
-      data = await p.getLocalFile(uri);
+      // data = await p.getLocalFile(uri);
+      return await p.getLocalFile(uri);
 
     } else {
 
       let p = await import('./getFile.js')
-      data = await p.getFile(uri);
+
+      return p.getFile(uri).then((data) => {
+        return data;
+      }).catch((err) => {
+        console.error("Error in FITSParser getFile ", uri, err);
+        return null;
+      });
+      // data = await p.getFile(uri);
+      // return await p.getFile(uri).catch((err) => {
+      //   console.error(err);
+      // });
+
     }
-    return data;
+    // return data;
 
   }
 

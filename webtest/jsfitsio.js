@@ -765,7 +765,7 @@ class FITSParser {
         return __awaiter(this, void 0, void 0, function* () {
             return this.getFile(this._url)
                 .then((rawdata) => {
-                if (rawdata !== null) {
+                if (rawdata !== null && rawdata.byteLength > 0) {
                     const uint8 = new Uint8Array(rawdata);
                     const fits = this.processFits(uint8);
                     return fits;
@@ -805,13 +805,23 @@ class FITSParser {
             let data;
             if (!uri.substring(0, 5).toLowerCase().includes("http")) {
                 let p = yield __webpack_require__.e(/*! import() */ "src_getLocalFile_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./getLocalFile.js */ "./src/getLocalFile.ts"));
-                data = yield p.getLocalFile(uri);
+                // data = await p.getLocalFile(uri);
+                return yield p.getLocalFile(uri);
             }
             else {
                 let p = yield Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_cross-fetch_dist_browser-ponyfill_js"), __webpack_require__.e("src_getFile_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./getFile.js */ "./src/getFile.ts"));
-                data = yield p.getFile(uri);
+                return p.getFile(uri).then((data) => {
+                    return data;
+                }).catch((err) => {
+                    console.error(err);
+                    return null;
+                });
+                // data = await p.getFile(uri);
+                // return await p.getFile(uri).catch((err) => {
+                //   console.error(err);
+                // });
             }
-            return data;
+            // return data;
         });
     }
 }
@@ -1035,7 +1045,7 @@ class ParseHeader {
         let item;
         let fitsLine;
         item = null;
-        while (key !== "END") {
+        while (key !== "END" && rawdata.length > 0) {
             // line 80 characters
             u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
             nline++;
@@ -1731,7 +1741,7 @@ class FITSHeaderItem {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"9afec65ea2038faa319b","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"2feb2813035f192d10da"}[chunkId] + "";
+/******/ 			return "" + chunkId + ".bundle.js?h=" + {"src_getLocalFile_ts":"9afec65ea2038faa319b","vendors-node_modules_cross-fetch_dist_browser-ponyfill_js":"5a425c3391776f7feb23","src_getFile_ts":"802148f805683517f068"}[chunkId] + "";
 /******/ 		};
 /******/ 	})();
 /******/ 	

@@ -8,16 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import fetch from 'cross-fetch';
+// export async function getFile(uri: string): Promise<ArrayBuffer | Buffer> {
 export function getFile(uri) {
     return __awaiter(this, void 0, void 0, function* () {
-        let response;
-        response = yield fetch(uri);
-        if (!response.ok) {
-            return new ArrayBuffer(0);
-        }
-        else {
-            return response.arrayBuffer();
-        }
+        // let response: Response;
+        // response = await fetch(uri);
+        // if (!response.ok) {
+        //   return new ArrayBuffer(0);
+        // } else {
+        //   return response.arrayBuffer();
+        // }
+        let buffer;
+        buffer = yield (yield fetch(uri)).arrayBuffer();
+        return buffer;
     });
 }
 //# sourceMappingURL=getFile.js.map

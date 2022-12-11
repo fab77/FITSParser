@@ -65,13 +65,23 @@ export class FITSParser {
             let data;
             if (!uri.substring(0, 5).toLowerCase().includes("http")) {
                 let p = yield import('./getLocalFile.js');
-                data = yield p.getLocalFile(uri);
+                // data = await p.getLocalFile(uri);
+                return yield p.getLocalFile(uri);
             }
             else {
                 let p = yield import('./getFile.js');
-                data = yield p.getFile(uri);
+                return p.getFile(uri).then((data) => {
+                    return data;
+                }).catch((err) => {
+                    console.error(err);
+                    return null;
+                });
+                // data = await p.getFile(uri);
+                // return await p.getFile(uri).catch((err) => {
+                //   console.error(err);
+                // });
             }
-            return data;
+            // return data;
         });
     }
 }

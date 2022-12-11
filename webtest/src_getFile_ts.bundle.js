@@ -23,16 +23,19 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
+// export async function getFile(uri: string): Promise<ArrayBuffer | Buffer> {
 function getFile(uri) {
     return __awaiter(this, void 0, void 0, function* () {
-        let response;
-        response = yield cross_fetch__WEBPACK_IMPORTED_MODULE_0___default()(uri);
-        if (!response.ok) {
-            return new ArrayBuffer(0);
-        }
-        else {
-            return response.arrayBuffer();
-        }
+        // let response: Response;
+        // response = await fetch(uri);
+        // if (!response.ok) {
+        //   return new ArrayBuffer(0);
+        // } else {
+        //   return response.arrayBuffer();
+        // }
+        let buffer;
+        buffer = yield (yield cross_fetch__WEBPACK_IMPORTED_MODULE_0___default()(uri)).arrayBuffer();
+        return buffer;
     });
 }
 
@@ -40,4 +43,4 @@ function getFile(uri) {
 /***/ })
 
 }]);
-//# sourceMappingURL=src_getFile_ts.bundle.js.map?h=2feb2813035f192d10da
+//# sourceMappingURL=src_getFile_ts.bundle.js.map?h=802148f805683517f068

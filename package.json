@@ -1,7 +1,7 @@
 {
   "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
-  "version": "1.1.6",
+  "version": "1.1.8",
   "keywords": [
     "FITS",
     "FITS I/O",
@@ -34,7 +34,7 @@
   ],
   "scripts": {
     "clean": "shx rm -rf _bundles lib-esm",
-    "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
+    "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress; cp _bundles/* webtest/",
     "build:prod": "npm run clean && tsc && webpack --mode=production",
     "webtest": "cp _bundles/* webtest/; node server.cjs",
     "test:esm": "tsc -m es6 test.ts; node test.js"
