@@ -77,7 +77,7 @@ export class FITSParser {
       return p.getFile(uri).then((data) => {
         return data;
       }).catch((err) => {
-        console.error("Error in FITSParser getFile ", uri, err);
+        // console.error("Error in FITSParser getFile ", uri, err);
         return null;
       });
       // data = await p.getFile(uri);
