@@ -132,7 +132,10 @@ export class ParseUtils {
   ): number | undefined {
     let px_val = undefined; // pixel value
     // let px_val1, px_val2, px_val3, px_val4;
-    if (bitpix == 16) {
+
+    if (bitpix == 8){
+      px_val = bytes[0]
+    } else if (bitpix == 16) {
       // 16-bit 2's complement binary integer
       px_val = ParseUtils.parse16bit2sComplement(
         bytes[offset],
