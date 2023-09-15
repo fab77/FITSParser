@@ -64,6 +64,8 @@ export class FITSHeader extends Map {
           "CRPIX2",
           "CDELT1",
           "CDELT2",
+          "CRVAL1",
+          "CRVAL2",
         ].includes(item.key)
       ) {
         this.set(item.key, item.value);
@@ -96,6 +98,8 @@ export class FITSHeader extends Map {
           "CRPIX2",
           "CDELT1",
           "CDELT2",
+          "CRVAL1",
+          "CRVAL2",
         ].includes(item.key)
       ) {
         this.set(item.key, item.value);
