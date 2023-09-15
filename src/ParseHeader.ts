@@ -47,7 +47,8 @@ export class ParseHeader {
       // reading value
       u8val = new Uint8Array(u8line.slice(10, 80));
       val = textDecoder.decode(u8val).trim();
-
+      // ascii 61 -> =
+      // ascii 32 -> [space]
       if (u8ind[0] == 61 && u8ind[1] == 32) {
         let firstchar = 32;
         for (let i = 0; i < u8val.length; i++) {
@@ -56,11 +57,15 @@ export class ParseHeader {
             break;
           }
         }
+        // ascii 39 -> '
         if (firstchar == 39 || !Number(val)) {
-          // value starts with '
           // [ival, icomment]
-          fitsLine = ParseHeader.parseStringValue(u8val);
+          // fitsLine = ParseHeader.parseStringValue(u8val);
+          fitsLine = ParseHeader.parseLogicalValue(u8val);
+          
         } else {
+          // ascii 84 -> T
+          // ascii 70 -> F
           if (firstchar == 84 || firstchar == 70) {
             // T or F
             fitsLine = ParseHeader.parseLogicalValue(u8val);

@@ -19,7 +19,15 @@ export function getFile(uri) {
         //   return response.arrayBuffer();
         // }
         let buffer;
-        buffer = yield (yield fetch(uri)).arrayBuffer();
+        // buffer = await (await fetch(uri)).arrayBuffer();
+        let response = yield fetch(uri);
+        if (response === null || response === void 0 ? void 0 : response.ok) {
+            buffer = yield response.arrayBuffer();
+        }
+        else {
+            console.log("No file found " + uri);
+            return null;
+        }
         return buffer;
     });
 }

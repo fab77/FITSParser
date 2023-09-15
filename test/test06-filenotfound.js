@@ -3,7 +3,8 @@ import { FITSParser } from '../lib-esm/FITSParser.js';
 
 
 console.log("Download fits and parse it (shows some header keywords and the payload data bytes length)");
-const fileuri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
+// const fileuri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
+const fileuri = "https://skies.esac.esa.int/VTSSHa//Norder2/Dir0/Npix30.fits";
 console.log(`loading ${fileuri}`);
 const fp = new FITSParser(fileuri);
 const promise = fp.loadFITS();
