@@ -17,7 +17,7 @@
  * -64	64-bit IEEE double precision floating point
  *
  */
-import { Blob } from 'blob-polyfill';
+// import { Blob } from 'blob-polyfill';
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
 import { ParseUtils } from "./ParseUtils.js";
 // import fs from 'node:fs/promises';
