@@ -59,12 +59,6 @@ npm i
 npm run build:prod
 ```
 
-## Running the tests (still manual)
-First compile the code:
-```
-$ node build:prod
-```
-
 ### reading FITS file available in the web:
 ```
 import { FITSParser } from 'jsfitio';
