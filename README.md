@@ -7,12 +7,12 @@ Library used to handle FITS files as defined in the "Definition of the Flexible 
 This library is capable to read and write FITS files where the data are represented in the following formats (BITPIX):
 
 
-8 Character or unsigned binary integer
-16 16-bit two’s complement binary integer
-32 32-bit two’s complement binary integer
-64 64-bit two’s complement binary integer
-−32 IEEE single-precision floating point
-−64 IEEE double-precision floating point
+- 8 Character or unsigned binary integer
+- 16 16-bit two’s complement binary integer
+- 32 32-bit two’s complement binary integer
+- 64 64-bit two’s complement binary integer
+- −32 IEEE single-precision floating point
+- −64 IEEE double-precision floating point
 
 
 Only ImageHDU are supported at the moment. 
