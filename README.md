@@ -19,31 +19,51 @@ Only ImageHDU are supported at the moment.
 
 jsFITS I/O can be used as standalone Node module or integrated in the browser. 
 
-## Getting Started
 
-### Installing as node module
+## How to use the generated library available in Nodejs repository
+Include the following dependency into package.json file in your project:
 ```
-$ npm install jsfitio
+"dependencies": {
+        "jsfitsio": "^1.1.14"
+    },
 ```
 
-### Installing as Javascript external file in a web page
+## Installing as Javascript external file in a web page
 
-Download the file "jfitsio.js" and include it in your web page as below:
+Download the file "jfitsio.js" under _bundle directory and include it in your web page.
 
+
+## Deployment as Node module
+
+- Prerequisites:
+  [Node.js](https://nodejs.org) v<=16
+  (see [installation instructions](https://nodejs.org/en/download/package-manager))
+
+- Clone repo:
+```
+git clone https://github.com/fab77/FITSParser.git
+```
+
+- Move into the FITSParser folder:
+```
+cd FITSParser
+```
+
+- Install the required `dev` modules:
+```
+npm i
+```
+
+- Compile the project:
+```
+npm run build:prod
+```
 
 ## Running the tests (still manual)
 First compile the code:
 ```
-$ node start:dev
+$ node build:prod
 ```
-To test jsfitsio in node:
-```
-$ node test/test01.js
-$ node test/test02.js
-```
-
-
-## Deployment as Node module
 
 ### reading FITS file available in the web:
 ```
@@ -141,8 +161,7 @@ webpack: 5.74.0
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GPL License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
-
 * Yago Ascasibar
