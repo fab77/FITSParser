@@ -13,82 +13,108 @@ import { FITSParsed } from "./model/FITSParsed.js";
 // import { readFile } from "node:fs/promises";
 
 export class FITSParser {
-  _url: string;
+  
 
-  constructor(url: string) {
-    this._url = url;
+  static async loadFITS(url: string): Promise<FITSParsed | null> {
+    const uint8data = await FITSParser.getFile(url)
+    if (uint8data?.byteLength) {
+      const fits = FITSParser.processFits(uint8data);
+      return fits;
+    }
+    return null;
   }
 
-  async loadFITS(): Promise<FITSParsed | null> {
-    return this.getFile(this._url)
-      .then((rawdata) => {
-        if (rawdata !== null && rawdata.byteLength > 0) {
-          const uint8 = new Uint8Array(rawdata);
-          const fits = this.processFits(uint8);
-          return fits;
-        }
-        return null;
-      })
-      .catch((error) => {
-        if (error?.response?.data?.message) {
-          throw new Error(
-            "[FITSParser->loadFITS] " + error.response.data.message
-          );
-        }
-        throw error;
-      });
-  }
+  private static processFits(rawdata: Uint8Array): FITSParsed {
 
-  processFits(rawdata: Uint8Array): FITSParsed {
     const header: FITSHeader = ParseHeader.parse(rawdata);
 
-    const payloadParser = new ParsePayload(header, rawdata);
-    const pixelvalues = payloadParser.parse();
-    // if (rawdata.length > (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length))) {
-    // let leftover = rawdata.length - (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length));
-    // 	throw new Error("[FITSParser->processFits] It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.");
-    // 	console.warn("It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.")
-    // }
+    const headerFinalised = ParsePayload.computePhysicalMinAndMax(header, rawdata);
+
+    if (headerFinalised == null) {
+      return null
+    }
+
+    const dataOffset = 2880; // Assuming no additional header blocks
+    const payloadBuffer = new Uint8Array(rawdata.slice(dataOffset));
+    const payloadMatrix = FITSParser.createMatrix(payloadBuffer, header)
+
     return {
-      header: header,
-      data: pixelvalues,
+      header: headerFinalised,
+      data: payloadMatrix
     };
   }
 
-  static generateFITS(header: FITSHeader, rawdata: Uint8Array[]) {
-    const writer = new FITSWriter();
-    writer.run(header, rawdata);
-    return writer.typedArrayToURL();
+  private static createMatrix(payload: Uint8Array, header: FITSHeader): Array<Uint8Array> {
+    const NAXIS1 = header.get("NAXIS1")
+    const NAXIS2 = header.get("NAXIS2")
+    const BITPIX = header.get("BITPIX")
+    const bytesXelem = Math.abs(BITPIX / 8);
+
+    if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
+      throw new Error("Payload size does not match the expected matrix dimensions.");
+    }
+
+    const matrix: Array<Uint8Array> = [];
+    for (let i = 0; i < NAXIS2; i++) {
+      matrix.push(payload.slice(i * NAXIS1 * bytesXelem, (i + 1) * NAXIS1 * bytesXelem));
+    }
+
+    return matrix;
   }
 
-  async getFile(uri: string): Promise<Buffer | ArrayBuffer> {
 
-    let data;
+
+  static generateFITSForWeb(fitsParsed: FITSParsed) {
+    return FITSWriter.typedArrayToURL(fitsParsed)
+  }
+
+  static saveFITSLocally(fitsParsed: FITSParsed, path: string) {
+    return FITSWriter.writeFITSFile(fitsParsed, path)
+  }
+
+  private static async getFile(uri: string): Promise<Uint8Array> {
+
     if (!uri.substring(0, 5).toLowerCase().includes("http")) {
 
-      let p = await import('./getLocalFile.js')
-      // data = await p.getLocalFile(uri);
-      return await p.getLocalFile(uri);
+      const p = await import('./getLocalFile.js')
+      const rawData = await p.getLocalFile(uri);
+      const uint8 = new Uint8Array(rawData);
+      return uint8
 
     } else {
 
-      let p = await import('./getFile.js')
-
-      return p.getFile(uri).then((data) => {
-        return data;
-      }).catch((err) => {
-        // console.error("Error in FITSParser getFile ", uri, err);
-        return null;
-      });
-      // data = await p.getFile(uri);
-      // return await p.getFile(uri).catch((err) => {
-      //   console.error(err);
-      // });
+      const p = await import('./getFile.js')
+      const rawData = await p.getFile(uri)
+      const uint8 = new Uint8Array(rawData);
+      return uint8
 
     }
-    // return data;
 
   }
 
 
 }
+
+const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
+FITSParser.loadFITS(url).then((fits) => {
+  if (fits == null) {
+    return null
+  }
+  const path = "./fitsTest1.fits"
+  console.log(fits.header)
+  FITSParser.saveFITSLocally(fits, path)
+  console.log("finished")
+})
+
+// const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/empty.fits"
+const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/Npix43348.fits"
+FITSParser.loadFITS(file).then((fits) => {
+  if (fits == null) {
+    return null
+  }
+  const path = "./fitsTest2.fits"
+  console.log(fits.header)
+  FITSParser.saveFITSLocally(fits, path)
+  console.log("finished")
+})
+

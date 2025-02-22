@@ -17,17 +17,12 @@
  * -64	64-bit IEEE double precision floating point
  *
  */
-import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
-import { FITSHeader } from "./model/FITSHeader.js";
+import { FITSParsed } from "./model/FITSParsed.js";
 export declare class FITSWriter {
-    _headerArray: Uint8Array;
-    _payloadArray: Uint8Array[];
-    _fitsData: Uint8Array;
-    constructor();
-    run(header: FITSHeader, rawdata: Uint8Array[]): void;
-    prepareHeader(headerDetails: FITSHeader): void;
-    formatHeaderLine(item: FITSHeaderItem): any;
-    prepareFITS(): void;
-    typedArrayToURL(): string;
+    static createFITS(fitsParsed: FITSParsed): Uint8Array;
+    private static createHeader;
+    private static createData;
+    static typedArrayToURL(fitsParsed: FITSParsed): string;
+    static writeFITSFile(fitsParsed: FITSParsed, filePath: string): void;
 }
 //# sourceMappingURL=FITSWriter.d.ts.map

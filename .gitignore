@@ -2,8 +2,8 @@
 .vscode/*
 node_modules/
 test/output/*
-
+.DS_Store
 *.tsbuildinfo
-
+*.bk
 
 workspace.code-workspace

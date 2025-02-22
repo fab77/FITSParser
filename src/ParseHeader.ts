@@ -1,6 +1,5 @@
 import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
-import { FITSHeaderLine } from "./model/FITSHeaderLine.js";
 /**
  * Summary. (bla bla bla)
  *
@@ -16,172 +15,40 @@ export class ParseHeader {
     // TODO handle multiple header blocks
     // let headerByteData = new Uint8Array(rawdata, 0, 2880);
 
-    const textDecoder = new TextDecoder("iso-8859-1");
+    const textDecoder = new TextDecoder('ascii');
+    const headerSize = 2880; // FITS headers are in 2880-byte blocks
+    const headerText = textDecoder.decode(rawdata.slice(0, headerSize));
 
-    const header = new FITSHeader();
+    const header:FITSHeader = new FITSHeader();
+    const lines = headerText.match(/.{1,80}/g) || [];
+    for (const line of lines) {
 
-    let nline = 0;
-    let key = "";
-    let val: string;
+      const key = line.slice(0, 8).trim();
+      let value = null
+      let comment = null
 
-    let u8line: Uint8Array;
-    let u8key: Uint8Array;
-    let u8val: Uint8Array;
-    let u8ind: Uint8Array;
-    // let ind: string;
-    let item: FITSHeaderItem | null;
-    let fitsLine: FITSHeaderLine;
-
-    item = null;
-
-    while (key !== "END" && rawdata.length > 0) {
-      // line 80 characters
-      u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
-      nline++;
-      // key
-      u8key = new Uint8Array(u8line.slice(0, 8));
-      key = textDecoder.decode(u8key).trim();
-      // value indicator
-      u8ind = new Uint8Array(u8line.slice(8, 10));
-      // ind = textDecoder.decode(u8ind);
-      // reading value
-      u8val = new Uint8Array(u8line.slice(10, 80));
-      val = textDecoder.decode(u8val).trim();
-      // ascii 61 -> =
-      // ascii 32 -> [space]
-      if (u8ind[0] == 61 && u8ind[1] == 32) {
-        let firstchar = 32;
-        for (let i = 0; i < u8val.length; i++) {
-          if (u8val[i] != 32) {
-            firstchar = u8val[i];
-            break;
-          }
+      if (key && key !== 'END') {
+        const rawValue = line.slice(10).trim().split('/')[0].trim();
+        value = isNaN(Number(rawValue)) ? rawValue : Number(rawValue);
+        if (line.includes('/')) {
+          comment = line.slice(10).trim().split('/')[1].trim();
         }
-        // ascii 39 -> '
-        if (firstchar == 39 || !Number(val)) {
-          // [ival, icomment]
-          // fitsLine = ParseHeader.parseStringValue(u8val);
-          fitsLine = ParseHeader.parseLogicalValue(u8val);
-          
+        
+        const item = new FITSHeaderItem(key, value, comment);
+        if (key == 'SIMPLE') {
+          header.addItemAtTheBeginning(item)
         } else {
-          // ascii 84 -> T
-          // ascii 70 -> F
-          if (firstchar == 84 || firstchar == 70) {
-            // T or F
-            fitsLine = ParseHeader.parseLogicalValue(u8val);
-          } else {
-            val = textDecoder.decode(u8val).trim();
-            if (val.includes(".")) {
-              fitsLine = ParseHeader.parseFloatValue(u8val);
-            } else {
-              fitsLine = ParseHeader.parseIntValue(u8val);
-            }
-          }
+          header.addItem(item)
         }
-        item = new FITSHeaderItem(key, fitsLine.val, fitsLine.comment);
-      } else {
-        if (key == "COMMENT" || key == "HISTORY") {
-          item = new FITSHeaderItem(key, undefined, val);
-        } else {
-          let firstchar = 32;
-          for (let i = 0; i < u8val.length; i++) {
-            if (u8val[i] != 32) {
-              firstchar = u8val[i];
-              break;
-            }
-          }
-          if (firstchar == 47) {
-            // single / this is the case when no key nor value indicator is defined
-            item = new FITSHeaderItem(undefined, undefined, val);
-          } else if (firstchar == 32) {
-            // case when there's a line with only spaces
-            item = new FITSHeaderItem(undefined, undefined, undefined);
-          }
-        }
-      }
-      if (item != null) {
-        header.addItem(item);
-      }
+      }     
+
+      
+
+      
+
     }
-
-    item = new FITSHeaderItem(
-      "COMMENT",
-      "FITS generated with FITSParser on ",
-      undefined
-    );
-    header.addItem(item);
-    const now = new Date();
-    item = new FITSHeaderItem("COMMENT", now.toString());
-    header.addItem(item);
-
-    const nblock = Math.ceil(nline / 36);
-    const offset = nblock * 2880;
-
-    header.offset = offset;
 
     return header;
   }
 
-  static parseStringValue(u8buffer: Uint8Array): FITSHeaderLine {
-    const textDecoder = new TextDecoder("iso-8859-1");
-    const decoded = textDecoder.decode(u8buffer).trim();
-    const idx = decoded.lastIndexOf("/");
-    const val = decoded.substring(0, idx);
-    let comment = decoded.substring(idx);
-    // if (comment === undefined) {
-    //   comment = null;
-    // }
-    return {
-      val: val,
-      comment: comment,
-    };
-  }
-
-  static parseLogicalValue(u8buffer: Uint8Array): FITSHeaderLine {
-    const textDecoder = new TextDecoder("iso-8859-1");
-    const val = textDecoder.decode(u8buffer).trim();
-    const tokens = val.split("/");
-    if (tokens[1] === undefined) {
-      return {
-        val: tokens[0].trim(),
-        comment: undefined,
-      };
-    }
-    return {
-      val: tokens[0].trim(),
-      comment: " /" + tokens[1],
-    };
-  }
-
-  static parseIntValue(u8buffer: Uint8Array): FITSHeaderLine {
-    const textDecoder = new TextDecoder("iso-8859-1");
-    const val = textDecoder.decode(u8buffer).trim();
-    const tokens = val.split("/");
-    if (tokens[1] === undefined) {
-      return {
-        val: parseInt(tokens[0].trim()),
-        comment: undefined,
-      };
-    }
-    return {
-      val: parseInt(tokens[0].trim()),
-      comment: " /" + tokens[1],
-    };
-  }
-
-  static parseFloatValue(u8buffer: Uint8Array): FITSHeaderLine {
-    const textDecoder = new TextDecoder("iso-8859-1");
-    const val = textDecoder.decode(u8buffer).trim();
-    const tokens = val.split("/");
-    if (tokens[1] === undefined) {
-      return {
-        val: parseFloat(tokens[0].trim()),
-        comment: undefined,
-      };
-    }
-    return {
-      val: parseFloat(tokens[0].trim()),
-      comment: " /" + tokens[1],
-    };
-  }
 }

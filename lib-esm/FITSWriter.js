@@ -1,157 +1,77 @@
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/fitsontheweb
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- * import GnomonicProjection from './GnomonicProjection';
- * BITPIX definition from https://archive.stsci.edu/fits/fits_standard/node39.html
- * and "Definition of the Flexible Image Transport System (FITS)" standard document
- * defined by FITS Working Group from the International Astronomical Union
- * http://fits.gsfc.nasa.gov/iaufwg/
- * 8	8-bit Character or unsigned binary integer
- * 16	16-bit twos-complement binary integer
- * 32	32-bit twos-complement binary integer
- * -32	32-bit IEEE single precision floating point
- * -64	64-bit IEEE double precision floating point
- *
- */
-// import { Blob } from 'blob-polyfill';
-import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
-import { ParseUtils } from "./ParseUtils.js";
-// import fs from 'node:fs/promises';
+import * as fs from 'fs';
 export class FITSWriter {
-    constructor() {
-        this._headerArray = new Uint8Array();
-        this._payloadArray = new Array();
-        this._fitsData = new Uint8Array();
+    static createFITS(fitsParsed) {
+        const headerBytes = this.createHeader(fitsParsed.header);
+        const dataBytes = this.createData(fitsParsed.data);
+        // Concatenate header and data to form a complete FITS file
+        const fitsFile = new Uint8Array(headerBytes.length + dataBytes.length);
+        fitsFile.set(headerBytes, 0);
+        fitsFile.set(dataBytes, headerBytes.length);
+        return fitsFile;
     }
-    run(header, rawdata) {
-        this.prepareHeader(header);
-        this._payloadArray = rawdata;
-        this.prepareFITS();
+    static createHeader(header) {
+        let headerString = "";
+        // Convert header items to FITS 80-character records
+        for (const item of header.getItemList()) {
+            const key = item.key ? item.key.padEnd(8, " ") : "        ";
+            const value = item.value !== undefined ? `= ${item.value}` : "";
+            const comment = item.comment ? ` / ${item.comment}` : "";
+            let record = `${key}${value}${comment}`.padEnd(80, " ");
+            headerString += record;
+        }
+        // End header with "END" record and pad to 2880-byte multiple
+        headerString += "END".padEnd(80, " ");
+        while (headerString.length % 2880 !== 0) {
+            headerString += " ";
+        }
+        return new TextEncoder().encode(headerString);
     }
-    prepareHeader(headerDetails) {
-        const item = new FITSHeaderItem("END");
-        headerDetails.addItem(item);
-        let str = "";
-        for (let i = 0; i < headerDetails.getItemList().length; i++) {
-            const item = headerDetails.getItemList()[i];
-            let s = this.formatHeaderLine(item);
-            if (s !== undefined) {
-                str += s;
-            }
+    static createData(data) {
+        // Concatenate all data rows into a single Uint8Array
+        let totalLength = data.reduce((sum, row) => sum + row.length, 0);
+        let dataBytes = new Uint8Array(totalLength);
+        let offset = 0;
+        for (let row of data) {
+            dataBytes.set(row, offset);
+            offset += row.length;
         }
-        const strBytelen = new TextEncoder().encode(str).length;
-        const nhdu = Math.ceil(strBytelen / 2880);
-        const offset = nhdu * 2880;
-        for (let j = 0; j < offset - strBytelen; j++) {
-            str += " ";
+        // Ensure data section is a multiple of 2880 bytes
+        let paddingSize = (2880 - (dataBytes.length % 2880)) % 2880;
+        if (paddingSize > 0) {
+            let paddedData = new Uint8Array(dataBytes.length + paddingSize);
+            paddedData.set(dataBytes);
+            return paddedData;
         }
-        const ab = new ArrayBuffer(str.length);
-        // Javascript character occupies 2 16-bit -> reducing it to 1 byte
-        this._headerArray = new Uint8Array(ab);
-        for (let i = 0; i < str.length; i++) {
-            this._headerArray[i] = ParseUtils.getByteAt(str, i);
-        }
+        return dataBytes;
     }
-    // formatHeaderLine(item: string | undefined, value: string | number, comment: string) {
-    formatHeaderLine(item) {
-        let str;
-        let keyword = item.key;
-        let value = item.value;
-        let comment = item.comment;
-        if (keyword !== null && keyword !== undefined) {
-            str = keyword;
-            if (keyword == "END") {
-                for (let j = 80; j > keyword.length; j--) {
-                    str += " ";
-                }
-                return str;
-            }
-            if (keyword == "COMMENT" || keyword == "HISTORY") {
-                for (let i = 0; i < 10 - keyword.length; i++) {
-                    str += " ";
-                }
-                str += value;
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-                return str;
-            }
-            for (let i = 0; i < 8 - keyword.length; i++) {
-                str += " ";
-            }
-            str += "= ";
-            if (value !== null && value !== undefined) {
-                // value
-                str += value;
-                if (comment !== null && comment !== undefined) {
-                    str += comment;
-                }
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-            else {
-                if (comment !== null && comment !== undefined) {
-                    str += comment;
-                }
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-        }
-        else {
-            // keyword null
-            str = "";
-            for (let j = 0; j < 18; j++) {
-                str += " ";
-            }
-            if (comment !== null && comment !== undefined) {
-                str += comment;
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-            else {
-                str = "";
-                for (let j = 80; j > 0; j--) {
-                    str += " ";
-                }
-            }
-        }
-        return str;
-    }
-    prepareFITS() {
-        const bytes = new Uint8Array(this._headerArray.length +
-            this._payloadArray[0].length * this._payloadArray.length);
-        bytes.set(this._headerArray, 0);
-        for (let i = 0; i < this._payloadArray.length; i++) {
-            const uint8 = this._payloadArray[i];
-            bytes.set(uint8, this._headerArray.length + i * uint8.length);
-        }
-        this._fitsData = bytes;
-    }
-    // writeFITS(fileuri: string) {
-    //   // const dirname = path.dirname(fileuri);
-    //   // fs.mkdir(dirname, { recursive: true });
-    //   fs.writeFile(fileuri, this._fitsData);
-    //   // if (fs.existsSync(dirname)) {
-    //   //   fs.writeFileSync(fileuri, this._fitsData);
-    //   // } else {
-    //   //   console.error(dirname + " doesn't exist");
-    //   // }
-    // }
-    typedArrayToURL() {
-        const b = new Blob([this._fitsData], { type: "application/fits" });
+    static typedArrayToURL(fitsParsed) {
+        const fitsFile = this.createFITS(fitsParsed);
+        const blob = new Blob([fitsFile], { type: "application/fits" });
         // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
-        return URL.createObjectURL(b);
+        const url = URL.createObjectURL(blob);
+        console.log(`Generated FITS file URL: ${url}`);
+        const revokeTimeout_sec = 10;
+        setTimeout(() => url, revokeTimeout_sec * 1000);
+        console.log(`Generated FITS will be available for ${revokeTimeout_sec} seconds: ${url}`);
+        return url;
+    }
+    static writeFITSFile(fitsParsed, filePath) {
+        const fitsFile = this.createFITS(fitsParsed);
+        try {
+            fs.writeFileSync(filePath, fitsFile);
+            console.log(`FITS file written successfully to: ${filePath}`);
+        }
+        catch (error) {
+            console.error(`Error writing FITS file: ${error}`);
+        }
     }
 }
+// const fitsParsed: FITSParsed = {
+//   header: new FITSHeader(),
+//   data: [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])]
+// };
+// // Specify the file path
+// const filePath = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/output.fits";
+// // Write the FITS file to the filesystem
+// FITSWriter.writeFITSFile(fitsParsed, filePath);
 //# sourceMappingURL=FITSWriter.js.map

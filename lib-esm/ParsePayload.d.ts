@@ -8,22 +8,9 @@
  */
 import { FITSHeader } from "./model/FITSHeader.js";
 export declare class ParsePayload {
-    _u8data: Uint8Array;
-    _BZERO: number | undefined;
-    _BSCALE: number | undefined;
-    _BLANK: number | undefined;
-    _BITPIX: number | undefined;
-    _NAXIS1: number | undefined;
-    _NAXIS2: number | undefined;
-    _DATAMIN: number | undefined;
-    _DATAMAX: number | undefined;
-    _physicalblank: number | undefined;
-    constructor(fitsheader: FITSHeader, rawdata: Uint8Array);
-    init(fitsheader: FITSHeader): void;
-    computePhysicalMinAndMax(): [number | undefined, number | undefined];
-    parse(): Array<Uint8Array>;
-    /** this can be deleted */
-    extractPixelValue(offset: number): number | undefined;
-    pixel2physicalValue(pxval: number): number;
+    static computePhysicalMinAndMax(header: FITSHeader, rawData: Uint8Array): FITSHeader;
+    static computePhysicalValues(rawData: Uint8Array, header: FITSHeader): [number | undefined, number | undefined];
+    static pixel2physicalValue(pxval: number, BSCALE: number, BZERO: number): number;
+    static extractPixelValue(rawData: Uint8Array, offset: number, BITPIX: number): number | undefined;
 }
 //# sourceMappingURL=ParsePayload.d.ts.map

@@ -1,7 +1,7 @@
 {
   "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
-  "version": "1.1.15",
+  "version": "1.1.16",
   "keywords": [
     "FITS",
     "FITS I/O",
@@ -37,15 +37,21 @@
     "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress; cp _bundles/* webtest/",
     "build:prod": "npm run clean && tsc && webpack --mode=production",
     "webtest": "cp _bundles/* webtest/; node server.cjs",
-    "test:esm": "tsc -m es6 test.ts; node test.js"
+    "test:esm": "tsc -m es6 test.ts; node test.js",
+    "test": "jest tests/FITSParser.test.ts",
+    "test:watch": "jest --watch"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "devDependencies": {
     "@tsconfig/node18": "^1.0.3",
-    "@types/node": "^18.7.23",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.76",
+    "jest": "^29.7.0",
+    "jest-esm-transformer": "^1.0.0",
     "shx": "^0.3.4",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.4.0",
     "typescript": "^4.8.3",
     "webpack": "^5.74.0",
@@ -54,8 +60,7 @@
   "dependencies": {
     "cross-fetch": "^3.1.5",
     "fs": "^0.0.1-security"
-  }
-  ,
+  },
   "browser": {
     "fs": false,
     "node:fs/promises": false,

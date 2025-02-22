@@ -12,122 +12,85 @@ import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
 import { ParseUtils } from "./ParseUtils.js";
 
-// let colorsMap = new Map();
-// colorsMap.set("grayscale","grayscale");
-// colorsMap.set("planck","planck");
-// colorsMap.set("eosb","eosb");
-// colorsMap.set("rainbow","rainbow");
-// colorsMap.set("cmb","cmb");
-// colorsMap.set("cubehelix","cubehelix");
-
 export class ParsePayload {
-  _u8data: Uint8Array;
-  _BZERO: number | undefined;
-  _BSCALE: number | undefined;
-  _BLANK: number | undefined;
-  _BITPIX: number | undefined;
-  _NAXIS1: number | undefined;
-  _NAXIS2: number | undefined;
-  _DATAMIN: number | undefined;
-  _DATAMAX: number | undefined;
-  _physicalblank: number | undefined;
+  
+  static computePhysicalMinAndMax(header: FITSHeader, rawData: Uint8Array){
+  
+    const BITPIX: number = header.get("BITPIX") ?? null;
+    const NAXIS1: number = header.get("NAXIS1") ?? null;
+    const NAXIS2: number = header.get("NAXIS2") ?? null;
+    const DATAMIN: number = header.get("DATAMIN") ?? null;
+    const DATAMAX: number = header.get("DATAMAX") ?? null;
+    
+    if (!BITPIX || !NAXIS1 || !NAXIS2) {
+      return null
+    }
 
-  constructor(fitsheader: FITSHeader, rawdata: Uint8Array) {
+    if (!DATAMAX || !DATAMIN) {
+      
+      const [DATAMIN, DATAMAX] = ParsePayload.computePhysicalValues(rawData, header);
+      if (DATAMIN && DATAMAX) {
+        const maxitem = new FITSHeaderItem(
+          "DATAMAX",
+          DATAMAX,
+          "computed by jsfitsio"
+        );
+        const minitem = new FITSHeaderItem(
+          "DATAMIN",
+          DATAMIN,
+          "computed by jsfitsio"
+        );
+        header.addItem(maxitem);
+        header.addItem(minitem);
+      }
+    }
 
-    this._u8data = new Uint8Array();
-    this._BZERO = undefined;
-    this._BSCALE = undefined;
-    this._BLANK = undefined;
-    this._BITPIX = undefined;
-    this._NAXIS1 = undefined;
-    this._NAXIS2 = undefined;
-    this._DATAMIN = undefined;
-    this._DATAMAX = undefined;
-    this._physicalblank = undefined;
-
-    const buffer = rawdata.slice(fitsheader.offset);
-    this._u8data = new Uint8Array(buffer);
-    this.init(fitsheader);
-
+    const endItem = new FITSHeaderItem('END', null, null);
+    header.addItem(endItem)
+    return header
+    // TODO: END tag shall be added here
   }
 
-  init(fitsheader: FITSHeader) {
-    this._BZERO = fitsheader.get("BZERO");
-    if (this._BZERO === undefined) {
-      this._BZERO = 0;
-    }
-    this._BSCALE = fitsheader.get("BSCALE");
-    if (this._BSCALE === undefined) {
-      this._BSCALE = 1;
-    }
-    this._BLANK = fitsheader.get("BLANK"); // undefined in case it's not present in the header
-    // this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
-    this._BITPIX = fitsheader.get("BITPIX");
-    this._NAXIS1 = fitsheader.get("NAXIS1");
-    this._NAXIS2 = fitsheader.get("NAXIS2");
-    this._DATAMIN = fitsheader.get("DATAMIN");
-    this._DATAMAX = fitsheader.get("DATAMAX");
-
-    this._physicalblank = undefined;
-    if (this._DATAMAX === undefined || this._DATAMIN === undefined) {
-      const [min, max] = this.computePhysicalMinAndMax();
-      this._DATAMAX = max;
-      this._DATAMIN = min;
-      const maxitem = new FITSHeaderItem(
-        "DATAMAX",
-        max,
-        " / computed with FITSParser"
-      );
-      const minitem = new FITSHeaderItem(
-        "DATAMIN",
-        min,
-        " / computed with FITSParser"
-      );
-      fitsheader.addItem(maxitem);
-      fitsheader.addItem(minitem);
-      // fitsheader.set("DATAMAX", max);
-      // fitsheader.set("DATAMIN", min);
-    }
-    // let item = new FITSHeaderItem("END", null, null);
-    // fitsheader.addItem(item);
-  }
-
-  computePhysicalMinAndMax(): [number | undefined, number | undefined] {
+  static computePhysicalValues(rawData: Uint8Array, header: FITSHeader): [number | undefined, number | undefined] {
+    
+    const BITPIX: number = header.get("BITPIX")
+    const BLANK: number = header.get("BLANK")
+    const BZERO: number = header.get("BZERO") ? header.get("BZERO") : 0;
+    const BSCALE: number = header.get("BSCALE") ? header.get("BSCALE") : 1;
     let i = 0;
-    if (this._BITPIX === undefined) {
-      throw new Error("BITPIX is not defined");
-    }
-    const bytesXelem = Math.abs(this._BITPIX / 8);
-    const pxLength = this._u8data.byteLength / bytesXelem;
-    let px_val, ph_val;
-    let min = undefined;
-    let max = undefined;
+    
+    const bytesXelem = Math.abs(BITPIX / 8);
+    const pxLength = rawData.byteLength / bytesXelem;
 
-    if (this._BLANK !== undefined) {
-      this._physicalblank = this.pixel2physicalValue(this._BLANK);
-    }
+    let min = null;
+    let max = null;
+    let physicalblank = null
 
+    if (BLANK) {
+      physicalblank = ParsePayload.pixel2physicalValue(BLANK, BSCALE, BZERO);
+    }
+    
     while (i < pxLength) {
-      // px_val = this.extractPixelValue(bytesXelem*i);
-      px_val = this.extractPixelValue(bytesXelem * i);
-      if (px_val === undefined) {
+      let px_val = ParsePayload.extractPixelValue(rawData, bytesXelem * i, BITPIX);
+      if (px_val === null) {
         i++;
         continue;
       }
-      ph_val = this.pixel2physicalValue(px_val);
-      if (min === undefined) {
+      let ph_val = ParsePayload.pixel2physicalValue(px_val, BSCALE, BZERO);
+      if (!min) {
         min = ph_val;
       }
-      if (max === undefined) {
+      if (!max) {
         max = ph_val;
       }
-      //TODO check below if
-      if (this._physicalblank === undefined || this._physicalblank !== ph_val) {
-        if (ph_val !== undefined && (ph_val < min || min === undefined)) {
+
+      // check this block if it is still applicable
+      if (physicalblank === null || physicalblank !== ph_val) {
+        if (ph_val !== null && (ph_val < min || min === null)) {
           min = ph_val;
         }
 
-        if (ph_val !== undefined && (ph_val > max || max === undefined)) {
+        if (ph_val !== null && (ph_val > max || max === null)) {
           max = ph_val;
         }
       }
@@ -136,91 +99,48 @@ export class ParsePayload {
     return [min, max];
   }
 
-  parse(): Array<Uint8Array> {
-    // let px_val; // pixel array value
-    // let ph_val = undefined; // pixel physical value
-    if (this._BITPIX === undefined) {
-      throw new Error("BITPIX is undefined")
+  static pixel2physicalValue(pxval: number, BSCALE:number, BZERO: number): number{
+    if (BZERO === null || BSCALE === null) {
+      throw new Error("Either BZERO or BSCALE is undefined");
     }
-    if (this._NAXIS1 === undefined) {
-      throw new Error("NAXIS1 is undefined")
-    }
-    if (this._NAXIS2 === undefined) {
-      throw new Error("NAXIS2 is undefined")
-    }
+    return BZERO + BSCALE * pxval;
     
-    const bytesXelem = Math.abs(this._BITPIX / 8);
-    let pxLength = this._u8data.byteLength / bytesXelem;
-    pxLength = this._NAXIS1 * this._NAXIS2;
-
-    let k = 0;
-    let c, r;
-    const pixelvalues = [];
-
-    //  let pixv, pv;
-    while (k < pxLength) {
-      r = Math.floor(k / this._NAXIS1); // row
-      c = (k - r * this._NAXIS1) * bytesXelem; // col
-      if (c === 0) {
-        pixelvalues[r] = new Uint8Array(this._NAXIS1 * bytesXelem);
-      }
-
-      // px_val = this.extractPixelValue(bytesXelem * k);
-      // ph_val = this.pixel2physicalValue(px_val);
-
-      // TODO check if ph_val == blank
-      // if not then use ph_val to compute datamin and datamax
-
-      for (let i = 0; i < bytesXelem; i++) {
-        pixelvalues[r][c + i] = this._u8data[k * bytesXelem + i];
-      }
-
-      // if (k == 232) {
-      // 	pixv = this.extractPixelValue(k * bytesXelem);
-      // 	pv = this._BZERO + this._BSCALE * pixv;
-      // }
-
-      k++;
-    }
-
-    return pixelvalues;
   }
 
-  /** this can be deleted */
-  extractPixelValue(offset: number): number | undefined {
-    let px_val = undefined; // pixel value
-    if (this._BITPIX == 16) {
+  static extractPixelValue(rawData: Uint8Array, offset: number, BITPIX: number): number | undefined {
+    let px_val = null; // pixel value
+    if (BITPIX == 16) {
       // 16-bit 2's complement binary integer
       px_val = ParseUtils.parse16bit2sComplement(
-        this._u8data[offset],
-        this._u8data[offset + 1]
+        rawData[offset],
+        rawData[offset + 1]
       );
-    } else if (this._BITPIX == 32) {
+    } else if (BITPIX == 32) {
       // IEEE 754 half precision (float16) ??
       px_val = ParseUtils.parse32bit2sComplement(
-        this._u8data[offset],
-        this._u8data[offset + 1],
-        this._u8data[offset + 2],
-        this._u8data[offset + 3]
+        rawData[offset],
+        rawData[offset + 1],
+        rawData[offset + 2],
+        rawData[offset + 3]
       );
-    } else if (this._BITPIX == -32) {
+    } else if (BITPIX == -32) {
       // 32-bit IEEE single-precision floating point
       // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
       px_val = ParseUtils.parseFloatingPointFormat(
-        this._u8data.slice(offset, offset + 4),
+        rawData.slice(offset, offset + 4),
         8,
         23
       );
-    } else if (this._BITPIX == 64) {
+    } else if (BITPIX == 64) {
       // 64-bit 2's complement binary integer
       throw new Error(
         "BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet."
       );
-    } else if (this._BITPIX == -64) {
+    } else if (BITPIX == -64) {
       // 64-bit IEEE double-precision floating point
       //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
       px_val = ParseUtils.parseFloatingPointFormat(
-        this._u8data.slice(offset, offset + 8),
+        rawData.slice(offset, offset + 8),
         11,
         52
       );
@@ -229,11 +149,4 @@ export class ParsePayload {
     return px_val;
   }
 
-  pixel2physicalValue(pxval: number): number{
-    if (this._BZERO === undefined || this._BSCALE === undefined) {
-      throw new Error("Either BZERO or BSCALE is undefined");
-    }
-    return this._BZERO + this._BSCALE * pxval;
-    
-  }
 }

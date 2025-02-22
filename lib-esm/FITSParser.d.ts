@@ -3,15 +3,13 @@
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-/// <reference types="node" resolution-mode="require"/>
-import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSParsed } from "./model/FITSParsed.js";
 export declare class FITSParser {
-    _url: string;
-    constructor(url: string);
-    loadFITS(): Promise<FITSParsed | null>;
-    processFits(rawdata: Uint8Array): FITSParsed;
-    static generateFITS(header: FITSHeader, rawdata: Uint8Array[]): string;
-    getFile(uri: string): Promise<Buffer | ArrayBuffer>;
+    static loadFITS(url: string): Promise<FITSParsed | null>;
+    private static processFits;
+    private static createMatrix;
+    static generateFITSForWeb(fitsParsed: FITSParsed): string;
+    static saveFITSLocally(fitsParsed: FITSParsed, path: string): void;
+    private static getFile;
 }
 //# sourceMappingURL=FITSParser.d.ts.map

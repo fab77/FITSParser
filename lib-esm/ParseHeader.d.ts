@@ -1,5 +1,4 @@
 import { FITSHeader } from "./model/FITSHeader.js";
-import { FITSHeaderLine } from "./model/FITSHeaderLine.js";
 /**
  * Summary. (bla bla bla)
  *
@@ -10,9 +9,5 @@ import { FITSHeaderLine } from "./model/FITSHeaderLine.js";
  */
 export declare class ParseHeader {
     static parse(rawdata: Uint8Array): FITSHeader;
-    static parseStringValue(u8buffer: Uint8Array): FITSHeaderLine;
-    static parseLogicalValue(u8buffer: Uint8Array): FITSHeaderLine;
-    static parseIntValue(u8buffer: Uint8Array): FITSHeaderLine;
-    static parseFloatValue(u8buffer: Uint8Array): FITSHeaderLine;
 }
 //# sourceMappingURL=ParseHeader.d.ts.map

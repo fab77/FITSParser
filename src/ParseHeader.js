@@ -8,27 +8,30 @@ import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-export class ParseHeader {
-    static parse(rawdata) {
+var ParseHeader = /** @class */ (function () {
+    function ParseHeader() {
+    }
+    ParseHeader.parse = function (rawdata) {
         // only one header block (2880) allowed atm.
         // TODO handle multiple header blocks
         // let headerByteData = new Uint8Array(rawdata, 0, 2880);
-        const textDecoder = new TextDecoder('ascii');
-        const headerSize = 2880; // FITS headers are in 2880-byte blocks
-        const headerText = textDecoder.decode(rawdata.slice(0, headerSize));
-        const header = new FITSHeader();
-        const lines = headerText.match(/.{1,80}/g) || [];
-        for (const line of lines) {
-            const key = line.slice(0, 8).trim();
-            let value = null;
-            let comment = null;
+        var textDecoder = new TextDecoder('ascii');
+        var headerSize = 2880; // FITS headers are in 2880-byte blocks
+        var headerText = textDecoder.decode(rawdata.slice(0, headerSize));
+        var header = new FITSHeader();
+        var lines = headerText.match(/.{1,80}/g) || [];
+        for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+            var line = lines_1[_i];
+            var key = line.slice(0, 8).trim();
+            var value = null;
+            var comment = null;
             if (key && key !== 'END') {
-                const rawValue = line.slice(10).trim().split('/')[0].trim();
+                var rawValue = line.slice(10).trim().split('/')[0].trim();
                 value = isNaN(Number(rawValue)) ? rawValue : Number(rawValue);
                 if (line.includes('/')) {
                     comment = line.slice(10).trim().split('/')[1].trim();
                 }
-                const item = new FITSHeaderItem(key, value, comment);
+                var item = new FITSHeaderItem(key, value, comment);
                 if (key == 'SIMPLE') {
                     header.addItemAtTheBeginning(item);
                 }
@@ -38,6 +41,7 @@ export class ParseHeader {
             }
         }
         return header;
-    }
-}
-//# sourceMappingURL=ParseHeader.js.map
+    };
+    return ParseHeader;
+}());
+export { ParseHeader };

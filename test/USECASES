@@ -1,9 +1,0 @@
-# Node tests
-1. download fits through http and parse it (show header and footer) (test01.js)
-2. write a fits file in the local FS (test02.js)
-3. create URL from Blob and serve it through a local http server (node-static) TBD
-5. load fits through local filessytem and parse it (show header and footer) (test05.js)
-# Browser tests
-4. copy the generated bundle in a test dir and consume it in a html page (webtest) (npm run webtest)
-
-

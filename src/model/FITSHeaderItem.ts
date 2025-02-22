@@ -13,9 +13,9 @@ export class FITSHeaderItem {
   _comment: string | undefined;
 
   constructor(key?: string, value?: string | number, comment?: string) {
-    this._key = key !== undefined ? key : undefined;
-    this._value = value !== undefined ? value : undefined;
-    this._comment = comment !== undefined ? comment : undefined;
+    this._key = key
+    this._value = value ? value : null;
+    this._comment = comment ? comment : null;
   }
 
   get key() {
