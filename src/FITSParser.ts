@@ -54,12 +54,6 @@ export class FITSParser {
       throw new Error("BITPIX not defined.");
     }
 
-    // const NAXIS1 = header.findById("NAXIS1")?.value
-    // const NAXIS2 = header.findById("NAXIS2")?.value
-    // const BITPIX = header.findById("BITPIX")?.value
-    // if (!NAXIS1 || !NAXIS2 || !BITPIX) {
-    //   throw new Error("NAXIS1 or NAXIS2 or BITPIX not set.");
-    // }
     const bytesXelem = Math.abs(BITPIX / 8);
 
     if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
@@ -103,7 +97,7 @@ export class FITSParser {
         return uint8
       }
       
-      return new Uint8Array()
+      return new Uint8Array(0)
 
     }
 
@@ -112,16 +106,16 @@ export class FITSParser {
 
 }
 
-const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
-FITSParser.loadFITS(url).then((fits) => {
-  if (fits == null) {
-    return null
-  }
-  const path = "./fitsTest1.fits"
-  console.log(fits.header)
-  FITSParser.saveFITSLocally(fits, path)
-  console.log("finished")
-})
+// const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
+// FITSParser.loadFITS(url).then((fits) => {
+//   if (fits == null) {
+//     return null
+//   }
+//   const path = "./fitsTest1.fits"
+//   console.log(fits.header)
+//   FITSParser.saveFITSLocally(fits, path)
+//   console.log("finished")
+// })
 
 // // const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/empty.fits"
 // const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/Npix43348.fits"
