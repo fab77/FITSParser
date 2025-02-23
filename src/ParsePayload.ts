@@ -8,57 +8,91 @@
  * @link   github https://github.com/fab77/FITSParser
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-import { FITSHeader } from "./model/FITSHeader.js";
+// import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+import { FITSHeaderManager } from "./model/FITSHeaderManager.js";
+import { ParseHeader } from "./ParseHeader.js";
 import { ParseUtils } from "./ParseUtils.js";
 
 export class ParsePayload {
+
   
-  static computePhysicalMinAndMax(header: FITSHeader, rawData: Uint8Array){
-  
-    const BITPIX: number = header.get("BITPIX") ?? null;
-    const NAXIS1: number = header.get("NAXIS1") ?? null;
-    const NAXIS2: number = header.get("NAXIS2") ?? null;
-    const DATAMIN: number = header.get("DATAMIN") ?? null;
-    const DATAMAX: number = header.get("DATAMAX") ?? null;
-    
-    if (!BITPIX || !NAXIS1 || !NAXIS2) {
+
+  static computePhysicalMinAndMax(header: FITSHeaderManager, rawData: Uint8Array) {
+
+    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    if (BITPIX === null) {
       return null
     }
+    const NAXIS1 = ParseHeader.checkFITSItem(header, "NAXIS1")
+    if (NAXIS1 === null) {
+      return null
+    }
+    const NAXIS2 = ParseHeader.checkFITSItem(header, "NAXIS2")
+    if (NAXIS2 === null) {
+      return null
+    }
+    
+    const DATAMIN = ParseHeader.checkFITSItem(header, "DATAMIN")
+    const DATAMAX = ParseHeader.checkFITSItem(header, "DATAMAX")
+    
+
+    if (!BITPIX || !NAXIS1 || !NAXIS2) {
+      return null; // return early if invalid data.
+    }
+    
 
     if (!DATAMAX || !DATAMIN) {
-      
-      const [DATAMIN, DATAMAX] = ParsePayload.computePhysicalValues(rawData, header);
-      if (DATAMIN && DATAMAX) {
+
+      const [min, max] = ParsePayload.computePhysicalValues(rawData, header);
+      if (min && max) {
         const maxitem = new FITSHeaderItem(
           "DATAMAX",
-          DATAMAX,
+          min,
           "computed by jsfitsio"
         );
         const minitem = new FITSHeaderItem(
           "DATAMIN",
-          DATAMIN,
+          max,
           "computed by jsfitsio"
         );
-        header.addItem(maxitem);
-        header.addItem(minitem);
+        header.insert(maxitem);
+        header.insert(minitem);
       }
     }
 
-    const endItem = new FITSHeaderItem('END', null, null);
-    header.addItem(endItem)
+    const endItem = new FITSHeaderItem('END', "", "");
+    header.insert(endItem)
     return header
     // TODO: END tag shall be added here
   }
 
-  static computePhysicalValues(rawData: Uint8Array, header: FITSHeader): [number | undefined, number | undefined] {
+
+
+  static computePhysicalValues(rawData: Uint8Array, header: FITSHeaderManager): [number | null, number | null] {
+
+    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    if (BITPIX === null || isNaN(BITPIX)) {
+      return [null, null]
+    }
     
-    const BITPIX: number = header.get("BITPIX")
-    const BLANK: number = header.get("BLANK")
-    const BZERO: number = header.get("BZERO") ? header.get("BZERO") : 0;
-    const BSCALE: number = header.get("BSCALE") ? header.get("BSCALE") : 1;
+    const BLANK = ParseHeader.checkFITSItem(header, "BLANK")
+    if (BLANK === null || isNaN(BITPIX)) {
+      return [null, null]
+    }
+    
+    let BZERO = ParseHeader.checkFITSItem(header, "BZERO")
+    if (BZERO === null) {
+      BZERO = 0
+    }
+    
+    let BSCALE = ParseHeader.checkFITSItem(header, "BSCALE")
+    if (BSCALE === null) {
+      BSCALE = 1
+    }
+    
     let i = 0;
-    
+
     const bytesXelem = Math.abs(BITPIX / 8);
     const pxLength = rawData.byteLength / bytesXelem;
 
@@ -69,7 +103,7 @@ export class ParsePayload {
     if (BLANK) {
       physicalblank = ParsePayload.pixel2physicalValue(BLANK, BSCALE, BZERO);
     }
-    
+
     while (i < pxLength) {
       let px_val = ParsePayload.extractPixelValue(rawData, bytesXelem * i, BITPIX);
       if (px_val === null) {
@@ -99,15 +133,15 @@ export class ParsePayload {
     return [min, max];
   }
 
-  static pixel2physicalValue(pxval: number, BSCALE:number, BZERO: number): number{
+  static pixel2physicalValue(pxval: number, BSCALE: number, BZERO: number): number {
     if (BZERO === null || BSCALE === null) {
-      throw new Error("Either BZERO or BSCALE is undefined");
+      throw new Error("Either BZERO or BSCALE is null");
     }
     return BZERO + BSCALE * pxval;
-    
+
   }
 
-  static extractPixelValue(rawData: Uint8Array, offset: number, BITPIX: number): number | undefined {
+  static extractPixelValue(rawData: Uint8Array, offset: number, BITPIX: number): number | null {
     let px_val = null; // pixel value
     if (BITPIX == 16) {
       // 16-bit 2's complement binary integer

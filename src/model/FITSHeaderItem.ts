@@ -8,25 +8,25 @@
  */
 
 export class FITSHeaderItem {
-  _key: string | undefined;
-  _value: string | number | undefined;
-  _comment: string | undefined;
+  _key: string = "";
+  _value: string | number = "";
+  _comment: string = "";
 
-  constructor(key?: string, value?: string | number, comment?: string) {
+  constructor(key: string, value: string | number, comment: string) {
     this._key = key
-    this._value = value ? value : null;
-    this._comment = comment ? comment : null;
+    this._value = value
+    this._comment = comment
   }
 
-  get key() {
+  get key(): string {
     return this._key;
   }
 
-  get comment() {
+  get comment(): string {
     return this._comment;
   }
 
-  get value() {
+  get value(): string | number {
     return this._value;
   }
 }

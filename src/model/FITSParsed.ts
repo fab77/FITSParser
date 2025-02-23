@@ -1,7 +1,7 @@
-import { FITSHeader } from "./FITSHeader.js";
+// import { FITSHeader } from "./FITSHeader.js";
+import { FITSHeaderManager } from "./FITSHeaderManager.js";
 
 export interface FITSParsed {
-  header: FITSHeader;
-  // data: Uint8Array[][];
+  header: FITSHeaderManager;
   data: Array<Uint8Array>;
 }

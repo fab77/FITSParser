@@ -54,7 +54,7 @@ export class ParseUtils {
     bytes: Uint8Array,
     ebits: number,
     fbits: number
-  ): number | undefined {
+  ): number | null {
     // Bytes to bits
     const bits = [];
     for (let i = bytes.length; i; i -= 1) {
@@ -74,7 +74,7 @@ export class ParseUtils {
 
     // Produce number
     if (e === (1 << ebits) - 1) {
-      return f !== 0 ? undefined : s * Infinity;
+      return f !== 0 ? null : s * Infinity;
     } else if (e > 0) {
       return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
     } else if (f !== 0) {
@@ -129,8 +129,8 @@ export class ParseUtils {
     offset: number,
     bytes: Uint8Array,
     bitpix: number
-  ): number | undefined {
-    let px_val = undefined; // pixel value
+  ): number | null {
+    let px_val = null; // pixel value
     // let px_val1, px_val2, px_val3, px_val4;
 
     if (bitpix == 8){

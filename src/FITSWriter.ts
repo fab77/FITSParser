@@ -17,8 +17,9 @@
  * -64	64-bit IEEE double precision floating point
  *
  */
+import { FITSHeaderManager } from "./model/FITSHeaderManager.js";
 import { FITSParsed } from "./model/FITSParsed.js"
-import { FITSHeader } from "./model/FITSHeader.js"
+// import { FITSHeader } from "./model/FITSHeader.js"
 import * as fs from 'fs';
 
 
@@ -36,11 +37,11 @@ export class FITSWriter {
     return fitsFile;
   }
 
-  private static createHeader(header: FITSHeader): Uint8Array {
+  private static createHeader(header: FITSHeaderManager): Uint8Array {
     let headerString = "";
 
     // Convert header items to FITS 80-character records
-    for (const item of header.getItemList()) {
+    for (const item of header.getItems()) {
       const key = item.key ? item.key.padEnd(8, " ") : "        ";
       const value = item.value !== undefined ? `= ${item.value}` : "";
       const comment = item.comment ? ` / ${item.comment}` : "";

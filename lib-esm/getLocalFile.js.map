@@ -1,1 +1,0 @@
-{"version":3,"file":"getLocalFile.js","sourceRoot":"","sources":["../src/getLocalFile.ts"],"names":[],"mappings":";;;;;;;;;AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,kBAAkB,CAAC;AAC5C,2BAA2B;AAC3B,qCAAqC;AAErC,qDAAqD;AACrD,8CAA8C;AAE9C,MAAM,UAAgB,YAAY,CAAC,IAAW;;QAC1C,IAAI,MAAc,CAAC;QACnB,MAAM,GAAG,MAAM,QAAQ,CAAC,IAAI,CAAC,CAAC;QAC9B,OAAO,MAAM,CAAC;IAElB,CAAC;CAAA"}

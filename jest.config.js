@@ -1,13 +1,16 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} **/
 export default {
+  preset: "ts-jest",
   testEnvironment: "node",
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    "^.+.tsx?$": ["ts-jest",{}],
+    "^.+\\.ts$": "ts-jest",
   },
+  extensionsToTreatAsEsm: [".ts"],
   globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.jest.json'
-    }
-  }
+    "ts-jest": {
+      useESM: true,
+    },
+  },
+  moduleNameMapper: {
+      "^(\\.{1,2}/.*)\\.js$": "$1",
+    },
 };

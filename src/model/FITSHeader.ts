@@ -11,12 +11,12 @@ import { FITSHeaderItem } from "./FITSHeaderItem.js";
 
 // reference FTIS standard doc https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
 
-export class FITSHeader extends Map {
+export class FITSHeader extends Map<string, any> {
   _offset: number | undefined;
   _items: FITSHeaderItem[];
 
   constructor() {
-    super();
+    super(); // Ensure Map is properly initialized
     this._offset = undefined;
     this._items = [];
   }

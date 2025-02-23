@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url)
 const PATHS = {
   // entryPoint4Browser: path.resolve(__dirname, 'src/index-wp.ts'),
   entryPoint4Browser: path.resolve(__dirname, 'src/index.ts'),
-  bundles: path.resolve(__dirname, '_bundles'),
+  bundles: path.resolve(__dirname, 'dist'),
 }
 
 

@@ -1,20 +1,13 @@
-/**
-
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
 
 import { FITSWriter } from "./FITSWriter.js";
 import { ParsePayload } from "./ParsePayload.js";
 import { ParseHeader } from "./ParseHeader.js";
-import { FITSHeader } from "./model/FITSHeader.js";
+// import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSParsed } from "./model/FITSParsed.js";
-// import fetch from 'cross-fetch';
-// import { readFile } from "node:fs/promises";
+import { FITSHeaderManager } from "./model/FITSHeaderManager.js";
 
 export class FITSParser {
   
-
   static async loadFITS(url: string): Promise<FITSParsed | null> {
     const uint8data = await FITSParser.getFile(url)
     if (uint8data?.byteLength) {
@@ -24,9 +17,9 @@ export class FITSParser {
     return null;
   }
 
-  private static processFits(rawdata: Uint8Array): FITSParsed {
+  private static processFits(rawdata: Uint8Array): FITSParsed | null {
 
-    const header: FITSHeader = ParseHeader.parse(rawdata);
+    const header = ParseHeader.parse(rawdata);
 
     const headerFinalised = ParsePayload.computePhysicalMinAndMax(header, rawdata);
 
@@ -44,17 +37,37 @@ export class FITSParser {
     };
   }
 
-  private static createMatrix(payload: Uint8Array, header: FITSHeader): Array<Uint8Array> {
-    const NAXIS1 = header.get("NAXIS1")
-    const NAXIS2 = header.get("NAXIS2")
-    const BITPIX = header.get("BITPIX")
+  
+
+  private static createMatrix(payload: Uint8Array, header: FITSHeaderManager): Array<Uint8Array> {
+
+    const NAXIS1 = ParseHeader.checkFITSItem(header, "NAXIS1")
+    if (NAXIS1 === null) {
+      throw new Error("NAXIS1 not defined.");
+    }
+    const NAXIS2 = ParseHeader.checkFITSItem(header, "NAXIS2")
+    if (NAXIS2 === null) {
+      throw new Error("NAXIS2 not defined.");
+    }
+    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    if (BITPIX === null) {
+      throw new Error("BITPIX not defined.");
+    }
+
+    // const NAXIS1 = header.findById("NAXIS1")?.value
+    // const NAXIS2 = header.findById("NAXIS2")?.value
+    // const BITPIX = header.findById("BITPIX")?.value
+    // if (!NAXIS1 || !NAXIS2 || !BITPIX) {
+    //   throw new Error("NAXIS1 or NAXIS2 or BITPIX not set.");
+    // }
     const bytesXelem = Math.abs(BITPIX / 8);
 
     if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
       throw new Error("Payload size does not match the expected matrix dimensions.");
     }
 
-    const matrix: Array<Uint8Array> = [];
+    // const matrix: Array<Uint8Array> = [];
+    const matrix = [];
     for (let i = 0; i < NAXIS2; i++) {
       matrix.push(payload.slice(i * NAXIS1 * bytesXelem, (i + 1) * NAXIS1 * bytesXelem));
     }
@@ -85,8 +98,12 @@ export class FITSParser {
 
       const p = await import('./getFile.js')
       const rawData = await p.getFile(uri)
-      const uint8 = new Uint8Array(rawData);
-      return uint8
+      if (rawData?.byteLength) {
+        const uint8 = new Uint8Array(rawData);
+        return uint8
+      }
+      
+      return new Uint8Array()
 
     }
 
@@ -106,15 +123,15 @@ FITSParser.loadFITS(url).then((fits) => {
   console.log("finished")
 })
 
-// const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/empty.fits"
-const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/Npix43348.fits"
-FITSParser.loadFITS(file).then((fits) => {
-  if (fits == null) {
-    return null
-  }
-  const path = "./fitsTest2.fits"
-  console.log(fits.header)
-  FITSParser.saveFITSLocally(fits, path)
-  console.log("finished")
-})
+// // const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/empty.fits"
+// const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/Npix43348.fits"
+// FITSParser.loadFITS(file).then((fits) => {
+//   if (fits == null) {
+//     return null
+//   }
+//   const path = "./fitsTest2.fits"
+//   console.log(fits.header)
+//   FITSParser.saveFITSLocally(fits, path)
+//   console.log("finished")
+// })
 

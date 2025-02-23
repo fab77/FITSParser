@@ -1,5 +1,6 @@
-import { FITSHeader } from "./model/FITSHeader.js";
+// import { FITSHeader } from "./model/FITSHeader.js";
 import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
+import { FITSHeaderManager } from "./model/FITSHeaderManager.js";
 /**
  * Summary. (bla bla bla)
  *
@@ -10,7 +11,17 @@ import { FITSHeaderItem } from "./model/FITSHeaderItem.js";
  */
 
 export class ParseHeader {
-  static parse(rawdata: Uint8Array): FITSHeader {
+
+  static checkFITSItem(header: FITSHeaderManager, key: string): number | null {
+    const item = header.findById(key)
+    let VALUE = null
+    if (item) {
+      VALUE = Number(item.value)
+    }
+    return VALUE
+  }
+  
+  static parse(rawdata: Uint8Array): FITSHeaderManager {
     // only one header block (2880) allowed atm.
     // TODO handle multiple header blocks
     // let headerByteData = new Uint8Array(rawdata, 0, 2880);
@@ -19,35 +30,29 @@ export class ParseHeader {
     const headerSize = 2880; // FITS headers are in 2880-byte blocks
     const headerText = textDecoder.decode(rawdata.slice(0, headerSize));
 
-    const header:FITSHeader = new FITSHeader();
+    const header: FITSHeaderManager = new FITSHeaderManager();
     const lines = headerText.match(/.{1,80}/g) || [];
     for (const line of lines) {
 
       const key = line.slice(0, 8).trim();
-      let value = null
-      let comment = null
+      let value: string | number
+      let comment = ""
 
       if (key && key !== 'END') {
         const rawValue = line.slice(10).trim().split('/')[0].trim();
-        value = isNaN(Number(rawValue)) ? rawValue : Number(rawValue);
+        if (isNaN(Number(rawValue))) {
+          value = rawValue;
+        } else {
+          value = Number(rawValue);
+        }
         if (line.includes('/')) {
           comment = line.slice(10).trim().split('/')[1].trim();
         }
-        
+
         const item = new FITSHeaderItem(key, value, comment);
-        if (key == 'SIMPLE') {
-          header.addItemAtTheBeginning(item)
-        } else {
-          header.addItem(item)
-        }
-      }     
-
-      
-
-      
-
+        header.insert(item)
+      }
     }
-
     return header;
   }
 
