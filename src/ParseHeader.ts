@@ -12,7 +12,7 @@ import { FITSHeaderManager } from "./model/FITSHeaderManager.js";
 
 export class ParseHeader {
 
-  static checkFITSItem(header: FITSHeaderManager, key: string): number | null {
+  static getFITSItemValue(header: FITSHeaderManager, key: string): number | null {
     const item = header.findById(key)
     let VALUE = null
     if (item) {

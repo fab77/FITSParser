@@ -27,17 +27,19 @@
 //   "compileOnSave": false,
 //   "buildOnSave": false
 // }
-
 {
   "compilerOptions": {
-      "target": "ES6",
-      "module": "NodeNext",
-      "outDir": "lib-esm",
-      "strict": true,
-      "moduleResolution": "nodenext",
-      "esModuleInterop": true
+    "target": "ES6",
+    "module": "NodeNext",
+    "outDir": "lib-esm",
+    "strict": true,
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "include": [
-      "src"
+    "src/**/*"
   ]
 }

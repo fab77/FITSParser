@@ -20,21 +20,21 @@ export class ParsePayload {
 
   static computePhysicalMinAndMax(header: FITSHeaderManager, rawData: Uint8Array) {
 
-    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    const BITPIX = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BITPIX)
     if (BITPIX === null) {
       return null
     }
-    const NAXIS1 = ParseHeader.checkFITSItem(header, "NAXIS1")
+    const NAXIS1 = ParseHeader.getFITSItemValue(header, FITSHeaderManager.NAXIS1)
     if (NAXIS1 === null) {
       return null
     }
-    const NAXIS2 = ParseHeader.checkFITSItem(header, "NAXIS2")
+    const NAXIS2 = ParseHeader.getFITSItemValue(header, FITSHeaderManager.NAXIS2)
     if (NAXIS2 === null) {
       return null
     }
     
-    const DATAMIN = ParseHeader.checkFITSItem(header, "DATAMIN")
-    const DATAMAX = ParseHeader.checkFITSItem(header, "DATAMAX")
+    const DATAMIN = ParseHeader.getFITSItemValue(header, FITSHeaderManager.DATAMIN)
+    const DATAMAX = ParseHeader.getFITSItemValue(header, FITSHeaderManager.DATAMAX)
     
 
     if (!BITPIX || !NAXIS1 || !NAXIS2) {
@@ -71,22 +71,22 @@ export class ParsePayload {
 
   static computePhysicalValues(rawData: Uint8Array, header: FITSHeaderManager): [number | null, number | null] {
 
-    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    const BITPIX = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BITPIX)
     if (BITPIX === null || isNaN(BITPIX)) {
       return [null, null]
     }
     
-    const BLANK = ParseHeader.checkFITSItem(header, "BLANK")
+    const BLANK = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BLANK)
     if (BLANK === null || isNaN(BITPIX)) {
       return [null, null]
     }
     
-    let BZERO = ParseHeader.checkFITSItem(header, "BZERO")
+    let BZERO = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BZERO)
     if (BZERO === null) {
       BZERO = 0
     }
     
-    let BSCALE = ParseHeader.checkFITSItem(header, "BSCALE")
+    let BSCALE = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BSCALE)
     if (BSCALE === null) {
       BSCALE = 1
     }

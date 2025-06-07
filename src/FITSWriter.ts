@@ -42,6 +42,8 @@ export class FITSWriter {
 
     // Convert header items to FITS 80-character records
     for (const item of header.getItems()) {
+      if (item.key === "END") continue;
+
       const key = item.key ? item.key.padEnd(8, " ") : "        ";
       const value = item.value !== undefined ? `= ${item.value}` : "";
       const comment = item.comment ? ` / ${item.comment}` : "";
@@ -63,19 +65,19 @@ export class FITSWriter {
     let totalLength = data.reduce((sum, row) => sum + row.length, 0);
     let dataBytes = new Uint8Array(totalLength);
     
-    let offset = 0;
-    for (let row of data) {
-      dataBytes.set(row, offset);
-      offset += row.length;
-    }
+    // let offset = 0;
+    // for (let row of data) {
+    //   dataBytes.set(row, offset);
+    //   offset += row.length;
+    // }
 
-    // Ensure data section is a multiple of 2880 bytes
-    let paddingSize = (2880 - (dataBytes.length % 2880)) % 2880;
-    if (paddingSize > 0) {
-      let paddedData = new Uint8Array(dataBytes.length + paddingSize);
-      paddedData.set(dataBytes);
-      return paddedData;
-    }
+    // // Ensure data section is a multiple of 2880 bytes
+    // let paddingSize = (2880 - (dataBytes.length % 2880)) % 2880;
+    // if (paddingSize > 0) {
+    //   let paddedData = new Uint8Array(dataBytes.length + paddingSize);
+    //   paddedData.set(dataBytes);
+    //   return paddedData;
+    // }
 
     return dataBytes;
   }

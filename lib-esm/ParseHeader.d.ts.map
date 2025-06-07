@@ -1,0 +1,1 @@
+{"version":3,"file":"ParseHeader.d.ts","sourceRoot":"","sources":["../src/ParseHeader.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,iBAAiB,EAAE,MAAM,8BAA8B,CAAC;AACjE;;;;;;;GAOG;AAEH,qBAAa,WAAW;IAEtB,MAAM,CAAC,gBAAgB,CAAC,MAAM,EAAE,iBAAiB,EAAE,GAAG,EAAE,MAAM,GAAG,MAAM,GAAG,IAAI;IAS9E,MAAM,CAAC,KAAK,CAAC,OAAO,EAAE,UAAU,GAAG,iBAAiB;CAmCrD"}

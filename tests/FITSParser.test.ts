@@ -1,78 +1,104 @@
-// import {describe, expect, test, jest} from '@jest/globals';
+import { describe, expect, test, jest } from '@jest/globals';
 import { FITSParser } from "../src/FITSParser";
+import { FITSParsed } from "../src/model/FITSParsed";
 import { FITSHeader } from "../src/model/FITSHeader";
-// import {FITSParser} from "../src/index"
+import { FITSHeaderManager } from '../src/model/FITSHeaderManager';
+import { header, data } from "./inputs/Npix47180"
 
-test('hello function', () => {
-  expect('Hello, world!').toBe('Hello, world!');
-});
-
-test('hello function', async () => {
+test('[parse_hips__fits_1] Parse FITS from URL', async () => {
   const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
   const fits = new URL(url)
   const parsedFITS = await FITSParser.loadFITS(fits.toString());
+
   expect(parsedFITS).not.toBeNull();
-  expect(parsedFITS?.header).toBeInstanceOf(FITSHeader);
+  expect(parsedFITS?.header).toBeInstanceOf(FITSHeaderManager);
   expect(parsedFITS?.data).toBeInstanceOf(Array);
-  expect('Hello, world!').toBe('Hello, world!');
-});
+  const dataLength = parsedFITS ? parsedFITS?.data.length : 0
+  expect(dataLength * 4096).toBe(2097152);
+  expect(parsedFITS?.header.getItems().length).toBe(11);
+
+}, 15000);
+
+
+test('[parse_hips_fits_2] Create FITS programmatically from FITSParsed', async () => {
+
+  const fitsParsed: FITSParsed = {
+    header: header,
+    data: data
+  }
+
+  const FITS_FILE_PATH = "./tests/resources/parse_hips_fits_2.fits"
+  FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH)
+  const parsedFITS = await FITSParser.loadFITS(FITS_FILE_PATH);
+
+  expect(parsedFITS).not.toBeNull();
+  expect(parsedFITS?.header).toBeInstanceOf(FITSHeaderManager);
+  expect(parsedFITS?.data).toBeInstanceOf(Array);
+  const dataLength = parsedFITS ? parsedFITS?.data.length : 0
+  expect(dataLength * 4096).toBe(2097152);
+  expect(parsedFITS?.header.getItems().length).toBe(11);
+}, 15000);
+
+
+test('[parse_hips_fits_3] Create local FITS from FITS from URL', async () => {
+  const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
+  const fits = new URL(url)
+  const parsedFITS = await FITSParser.loadFITS(fits.toString());
+
+  if (parsedFITS !== null) {
+    FITSParser.saveFITSLocally(parsedFITS, "./tests/resources/parse_hips_fits_3.fits")
+  }
+
+  expect(parsedFITS).not.toBeNull();
+  expect(parsedFITS?.header).toBeInstanceOf(FITSHeaderManager);
+  expect(parsedFITS?.data).toBeInstanceOf(Array);
+  const dataLength = parsedFITS ? parsedFITS?.data.length : 0
+  expect(dataLength * 4096).toBe(2097152);
+  expect(parsedFITS?.header.getItems().length).toBe(11);
+}, 15000);
+
+
+test('[parse_hips_fits_3] Should return null if fetch fails', async () => {
+  const fits = await FITSParser.loadFITS("http://invalid-url");
+  expect(fits).toBeNull();
+}, 15000);
+
+
+test('[parse_hips_fits_3] Should return null if local filesystem load fails', async () => {
+  const fits = await FITSParser.loadFITS("./notexistent.fits");
+  expect(fits).toBeNull();
+}, 15000);
 
 
 
-
-
-// Mocked functions
-// jest.mock("../src/getFile", () => ({
-//   getFile: jest.fn(async (url: string) => new Uint8Array([0, 1, 2, 3, 4])),
+// jest.mock('../src/ParseHeader.js', () => ({
+//   ParseHeader: {
+//     parse: jest.fn(() => ({ items: [] })),
+//     getFITSItemValue: jest.fn((header: FITSHeaderManager, key: string) => {
+//       const defaults: Record<string, string | number> = { SIMPLE: 'T', BITPIX: 64, NAXIS: 2, NAXIS1: 512, NAXIS2: 512 };
+//       return defaults[key] ?? null;
+//     })
+//   }
 // }));
-
-// jest.mock("../src/getLocalFile", () => ({
-//   getLocalFile: jest.fn(async (path: string) => new Uint8Array([0, 1, 2, 3, 4])),
+// jest.mock('../src/ParsePayload.js', () => ({
+//   ParsePayload: {
+//     computePhysicalMinAndMax: jest.fn((header, data) => header)
+//   }
 // }));
 
 // describe("FITSParser", () => {
-//   test("should load a FITS file from a URL", async () => {
-//     const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits";
-//     const parsedFITS = await FITSParser.loadFITS(url);
-    
-//     expect(parsedFITS).not.toBeNull();
-//     expect(parsedFITS?.header).toBeInstanceOf(FITSHeader);
-//     expect(parsedFITS?.data).toBeInstanceOf(Array);
+
+//   it("should return null if fetch fails", async () => {
+//     const fits = await FITSParser.loadFITS("http://invalid-url");
+//     expect(fits).toBeNull();
 //   });
 
-  // test("should throw an error if the payload size does not match expected dimensions", () => {
-  //   const header = new FITSHeader();
-  //   header.set("NAXIS1", 5);
-  //   header.set("NAXIS2", 5);
-  //   header.set("BITPIX", 16); // 2 bytes per element
+//   it("should parse and return a FITSParsed object", async () => {
+//     const result = await FITSParser.loadFITS("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits");
+//     expect(result).not.toBeNull();
+//     expect(result).toHaveProperty("header");
+//     expect(result).toHaveProperty("data");
+//     expect(result!.data.length).toBeGreaterThan(0);
+//   });
 
-  //   const invalidPayload = new Uint8Array(10); // Incorrect size
-
-  //   expect(() => FITSParser["createMatrix"](invalidPayload, header)).toThrow(
-  //     "Payload size does not match the expected matrix dimensions."
-  //   );
-  // });
-
-  // test("should generate a FITS file URL", () => {
-  //   const header = new FITSHeader();
-  //   header.set("NAXIS1", 2);
-  //   header.set("NAXIS2", 2);
-  //   const fitsParsed = { header, data: [new Uint8Array([0, 1]), new Uint8Array([2, 3])] };
-
-  //   const fileURL = FITSParser.generateFITSForWeb(fitsParsed);
-  //   expect(fileURL).toContain("blob:");
-  // });
-
-  // test("should save FITS file locally", () => {
-  //   const header = new FITSHeader();
-  //   header.set("NAXIS1", 2);
-  //   header.set("NAXIS2", 2);
-  //   const fitsParsed = { header, data: [new Uint8Array([0, 1]), new Uint8Array([2, 3])] };
-
-  //   const fs = require("fs");
-  //   jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
-
-  //   FITSParser.saveFITSLocally(fitsParsed, "./output.fits");
-  //   expect(fs.writeFileSync).toHaveBeenCalled();
-  // });
 // });

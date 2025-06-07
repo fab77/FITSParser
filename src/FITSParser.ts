@@ -41,15 +41,15 @@ export class FITSParser {
 
   private static createMatrix(payload: Uint8Array, header: FITSHeaderManager): Array<Uint8Array> {
 
-    const NAXIS1 = ParseHeader.checkFITSItem(header, "NAXIS1")
+    const NAXIS1 = ParseHeader.getFITSItemValue(header, FITSHeaderManager.NAXIS1)
     if (NAXIS1 === null) {
       throw new Error("NAXIS1 not defined.");
     }
-    const NAXIS2 = ParseHeader.checkFITSItem(header, "NAXIS2")
+    const NAXIS2 = ParseHeader.getFITSItemValue(header, FITSHeaderManager.NAXIS2)
     if (NAXIS2 === null) {
       throw new Error("NAXIS2 not defined.");
     }
-    const BITPIX = ParseHeader.checkFITSItem(header, "BITPIX")
+    const BITPIX = ParseHeader.getFITSItemValue(header, FITSHeaderManager.BITPIX)
     if (BITPIX === null) {
       throw new Error("BITPIX not defined.");
     }
@@ -85,18 +85,19 @@ export class FITSParser {
 
       const p = await import('./getLocalFile.js')
       const rawData = await p.getLocalFile(uri);
-      const uint8 = new Uint8Array(rawData);
-      return uint8
+      if (rawData?.length){
+        const uint8 = new Uint8Array(rawData);
+        return uint8
+      }
+      return new Uint8Array(0)
 
     } else {
-
       const p = await import('./getFile.js')
       const rawData = await p.getFile(uri)
       if (rawData?.byteLength) {
         const uint8 = new Uint8Array(rawData);
         return uint8
       }
-      
       return new Uint8Array(0)
 
     }
