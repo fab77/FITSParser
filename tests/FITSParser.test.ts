@@ -70,6 +70,19 @@ test('[parse_hips_fits_3] Should return null if local filesystem load fails', as
 }, 15000);
 
 
+test('[parse_mercator_fits_1] Parse FITS from filesystem', async () => {
+  const path = "./tests/resources/Mercator46.fits";
+  const parsedFITS = await FITSParser.loadFITS(path);
+
+  expect(parsedFITS).not.toBeNull();
+  expect(parsedFITS?.header).toBeInstanceOf(FITSHeaderManager);
+  expect(parsedFITS?.data).toBeInstanceOf(Array);
+  const dataLength = parsedFITS ? parsedFITS?.data.length : 0
+  expect(parsedFITS?.header.getItems().length).toBe(20);
+
+}, 15000);
+
+
 
 // jest.mock('../src/ParseHeader.js', () => ({
 //   ParseHeader: {
