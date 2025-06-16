@@ -61,23 +61,15 @@ export class FITSWriter {
   }
 
   private static createData(data: Array<Uint8Array>): Uint8Array {
-    // Concatenate all data rows into a single Uint8Array
+    
     let totalLength = data.reduce((sum, row) => sum + row.length, 0);
     let dataBytes = new Uint8Array(totalLength);
     
-    // let offset = 0;
-    // for (let row of data) {
-    //   dataBytes.set(row, offset);
-    //   offset += row.length;
-    // }
-
-    // // Ensure data section is a multiple of 2880 bytes
-    // let paddingSize = (2880 - (dataBytes.length % 2880)) % 2880;
-    // if (paddingSize > 0) {
-    //   let paddedData = new Uint8Array(dataBytes.length + paddingSize);
-    //   paddedData.set(dataBytes);
-    //   return paddedData;
-    // }
+    let offset = 0;
+    for (let row of data) {
+      dataBytes.set(row, offset);
+      offset += row.length;
+    }
 
     return dataBytes;
   }
