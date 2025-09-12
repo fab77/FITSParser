@@ -92,8 +92,8 @@ import { FITSWriter } from 'jsfitio';
 import { writeFITS } from 'jsfitio'
 import { FITSHeaderItem } from 'jsfitio';
 
-const fileuri: string = "./test/inputs/x0c70103t_c1f.fits";
-const fp = new FITSParser(fileuri);
+const url = new URL('/output_fits/AR11130_2-3mHz_mean_pmdop_flat.fits', location.origin).href;
+const fp = new FITSParser(url);
 const fitsPromise = fp.loadFITS();
 fitsPromise.then( (fitsProcessed) => {
     let fitsHeader = fitsProcessed.header;
