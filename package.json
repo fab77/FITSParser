@@ -5,13 +5,13 @@
   "keywords": ["FITS", "FITS I/O", "FITS in a browser", "astronomy", "astrophysics", "science", "data format"],
   "author": "Fabrizio Giordano (fab77)",
   "license": "GPL-3.0-only",
-  "homepage": "https://github.com/fab77/FITSParser#readme",
+  "homepage": "https://github.com/fab77/jsfitsio#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fab77/FITSParser.git"
+    "url": "git+https://github.com/fab77/jsfitsio.git"
   },
   "bugs": {
-    "url": "https://github.com/fab77/FITSParser/issues",
+    "url": "https://github.com/fab77/jsfitsio/issues",
     "email": "fabriziogiordano77@gmail.com"
   },
   "type": "module",

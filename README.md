@@ -1,6 +1,7 @@
 # jsFITS I/O library
 
-Project available in github at https://github.com/fab77/FITSParser#readme
+Project available in github at https://github.com/fab77/jsfitsio#readme (previously available at https://github.com/fab77/FITSParser#readme). 
+
 
 Library used to handle FITS files as defined in the "Definition of the Flexible Image Transport System (FITS)" document defined by internation Astronomical Union (IAU)
 
