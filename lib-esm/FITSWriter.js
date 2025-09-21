@@ -16,7 +16,7 @@ export class FITSWriter {
         const IS_LOGICAL = new Set(["SIMPLE", "EXTEND"]);
         const items = header.getItems();
         function kw(s) {
-            return (s !== null && s !== void 0 ? s : "").toUpperCase().padEnd(8, " ").slice(0, 8);
+            return (s ?? "").toUpperCase().padEnd(8, " ").slice(0, 8);
         }
         function card80(s) {
             return s.length >= CARD ? s.slice(0, CARD) : s.padEnd(CARD, " ");
@@ -25,7 +25,7 @@ export class FITSWriter {
         function makeCommentCards(kind, text) {
             const prefix = kw(kind); // "COMMENT " or "HISTORY "
             const width = CARD - prefix.length; // 72
-            const t = (text !== null && text !== void 0 ? text : "").toString();
+            const t = (text ?? "").toString();
             if (!t.length)
                 return [card80(prefix)]; // allow empty COMMENT/HISTORY line
             const out = [];
@@ -67,12 +67,11 @@ export class FITSWriter {
         }
         // Build one keyword card, and (if needed) emit overflow as COMMENT cards
         function makeKeywordWithComment(key, value, comment) {
-            var _a;
             const K = key.toUpperCase();
             if (K === "END")
                 return [card80("END")];
             if (K === "COMMENT" || K === "HISTORY") {
-                const text = ((_a = value !== null && value !== void 0 ? value : comment) !== null && _a !== void 0 ? _a : "").toString();
+                const text = (value ?? comment ?? "").toString();
                 return makeCommentCards(K, text);
             }
             // Normal keyword
@@ -138,15 +137,14 @@ export class FITSWriter {
         return new TextEncoder().encode(headerString);
     }
     static createData(data, header) {
-        var _a, _b, _c, _d, _e, _f;
         // concat
         const totalLength = data.reduce((s, c) => s + c.length, 0);
         // OPTIONAL: verify size from BITPIX/NAXIS
-        const bitpix = Math.abs(Number((_b = (_a = header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : 0));
-        const naxis = Number((_d = (_c = header.findById("NAXIS")) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : 0);
+        const bitpix = Math.abs(Number(header.findById("BITPIX")?.value ?? 0));
+        const naxis = Number(header.findById("NAXIS")?.value ?? 0);
         let elems = 1;
         for (let k = 1; k <= naxis; k++) {
-            elems *= Number((_f = (_e = header.findById(`NAXIS${k}`)) === null || _e === void 0 ? void 0 : _e.value) !== null && _f !== void 0 ? _f : 0);
+            elems *= Number(header.findById(`NAXIS${k}`)?.value ?? 0);
         }
         const bytesPerElem = bitpix / 8;
         const expectedUnpadded = naxis > 0 ? elems * bytesPerElem : 0;

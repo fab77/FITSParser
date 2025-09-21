@@ -1,45 +1,46 @@
 // {
 //   "compilerOptions": {
-//     "moduleResolution": "node16", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
-//     // "module": "es6",
-//     // "module": "NodeNext",
-//     "module": "node16",
-//     "target": "es6",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
-//     "lib": ["es6", "dom"],
+//     "target": "ES6",
+//     "module": "NodeNext",
 //     "outDir": "lib-esm",
-//     "allowSyntheticDefaultImports": true,
-//     // "suppressImplicitAnyIndexErrors": true,
-//     "forceConsistentCasingInFileNames": true,
+//     "strict": true,
+//     "moduleResolution": "nodenext",
+//     "esModuleInterop": true,
 //     "sourceMap": true,
 //     "declaration": true,
 //     "declarationMap": true
-//     //"types": ["jest","node"]
 //   },
-//   "exclude": [
-//     "node_modules",
-//     "**/*.spec.ts",
-//     // "src/index.ts",
-//     // "src/FITSParser.ts"
-//   ],
 //   "include": [
 //     "src/**/*"
-//   ],
-//   "compileOnSave": false,
-//   "buildOnSave": false
+//   ]
 // }
+
 {
   "compilerOptions": {
-    "target": "ES6",
+    
+    "moduleResolution": "NodeNext", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
     "module": "NodeNext",
-    "outDir": "lib-esm",
-    "strict": true,
-    "moduleResolution": "nodenext",
+    "target": "ES2022",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
     "esModuleInterop": true,
+    
+    "lib": ["es6", "dom"],
+    "outDir": "lib-esm",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "strict": true,
+    
+    
   },
   "include": [
-    "src/**/*"
-  ]
+    "src/**/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
 }

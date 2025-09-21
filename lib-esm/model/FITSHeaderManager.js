@@ -1,7 +1,25 @@
 import { FITSHeaderItem } from "./FITSHeaderItem.js";
 export class FITSHeaderManager {
+    static SIMPLE = "SIMPLE";
+    static BITPIX = "BITPIX";
+    static BZERO = "BZERO";
+    static BSCALE = "BSCALE";
+    static BLANK = "BLANK";
+    static NAXIS = "NAXIS";
+    static NAXIS1 = "NAXIS1";
+    static NAXIS2 = "NAXIS2";
+    static DATAMIN = "DATAMIN";
+    static DATAMAX = "DATAMAX";
+    static CRVAL1 = "CRVAL1";
+    static CRVAL2 = "CRVAL2";
+    static CTYPE1 = "CTYPE1";
+    static CTYPE2 = "CTYPE2";
+    static CRPIX1 = "CRPIX1";
+    static CRPIX2 = "CRPIX2";
+    static ORIGIN = "ORIGIN";
+    static COMMENT = "COMMENT";
+    items = [];
     constructor() {
-        this.items = [];
         this.items[0] = new FITSHeaderItem(FITSHeaderManager.SIMPLE, 'T', '');
         this.items[1] = new FITSHeaderItem(FITSHeaderManager.BITPIX, '', '');
         this.items[2] = new FITSHeaderItem(FITSHeaderManager.NAXIS, 2, '');
@@ -53,22 +71,4 @@ export class FITSHeaderManager {
         return item;
     }
 }
-FITSHeaderManager.SIMPLE = "SIMPLE";
-FITSHeaderManager.BITPIX = "BITPIX";
-FITSHeaderManager.BZERO = "BZERO";
-FITSHeaderManager.BSCALE = "BSCALE";
-FITSHeaderManager.BLANK = "BLANK";
-FITSHeaderManager.NAXIS = "NAXIS";
-FITSHeaderManager.NAXIS1 = "NAXIS1";
-FITSHeaderManager.NAXIS2 = "NAXIS2";
-FITSHeaderManager.DATAMIN = "DATAMIN";
-FITSHeaderManager.DATAMAX = "DATAMAX";
-FITSHeaderManager.CRVAL1 = "CRVAL1";
-FITSHeaderManager.CRVAL2 = "CRVAL2";
-FITSHeaderManager.CTYPE1 = "CTYPE1";
-FITSHeaderManager.CTYPE2 = "CTYPE2";
-FITSHeaderManager.CRPIX1 = "CRPIX1";
-FITSHeaderManager.CRPIX2 = "CRPIX2";
-FITSHeaderManager.ORIGIN = "ORIGIN";
-FITSHeaderManager.COMMENT = "COMMENT";
 //# sourceMappingURL=FITSHeaderManager.js.map

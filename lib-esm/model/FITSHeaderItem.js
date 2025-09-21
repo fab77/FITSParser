@@ -7,10 +7,10 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 export class FITSHeaderItem {
+    _key = "";
+    _value = "";
+    _comment = "";
     constructor(key, value, comment) {
-        this._key = "";
-        this._value = "";
-        this._comment = "";
         this._key = key;
         this._value = value;
         this._comment = comment;

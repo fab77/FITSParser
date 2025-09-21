@@ -1,0 +1,2 @@
+(this.webpackChunkjsfitsio=this.webpackChunkjsfitsio||[]).push([[483],{483:(r,t,e)=>{"use strict";e.r(t),e.d(t,{getLocalFile:()=>i});var a=e(438);async function i(r){try{return await(0,a.readFile)(r)||null}catch(t){return console.error("Failed to read path:",r,"\nError:",t),null}}},438:()=>{}}]);
+//# sourceMappingURL=483.js.map
