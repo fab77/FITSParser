@@ -1,7 +1,5 @@
 export { FITSHeaderItem } from "./model/FITSHeaderItem.js";
 export { FITSHeaderManager } from "./model/FITSHeaderManager.js";
-import type { FITSHeaderLine } from "./model/FITSHeaderLine.js";
-export type { FITSHeaderLine };
 import type { FITSParsed } from "./model/FITSParsed.js";
 export type { FITSParsed };
 export { FITSParser } from "./FITSParser.js";
