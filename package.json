@@ -2,7 +2,15 @@
   "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
   "version": "1.2.2",
-  "keywords": ["FITS", "FITS I/O", "FITS in a browser", "astronomy", "astrophysics", "science", "data format"],
+  "keywords": [
+    "FITS",
+    "FITS I/O",
+    "FITS in a browser",
+    "astronomy",
+    "astrophysics",
+    "science",
+    "data format"
+  ],
   "author": "Fabrizio Giordano (fab77)",
   "license": "GPL-3.0-only",
   "homepage": "https://github.com/fab77/jsfitsio#readme",
@@ -23,18 +31,21 @@
     }
   },
   "module": "./lib-esm/index.js",
-  "main": "./lib-esm/index.js",
+  "main": "./dist/jsfitsio.cjs",
   "types": "./lib-esm/index.d.ts",
+
   "unpkg": "dist/jsfitsio.min.js",
   "jsdelivr": "dist/jsfitsio.min.js",
-  "files": ["lib-esm/", "dist"],
+  "files": [
+    "lib-esm/",
+    "dist"
+  ],
   "prepublishOnly": "npm run build:prod",
   "sideEffects": false,
   "scripts": {
     "clean": "shx rm -rf dist lib-esm",
     "dev": "npm run clean && tsc && webpack --mode=development --watch --progress; cp dist/* webtest/",
     "prod": "npm run clean && tsc && webpack --mode=production",
-    
     "webtest": "cp dist/* webtest/; node server.cjs",
     "test:esm": "tsc -m es6 test.ts; node test.js",
     "test": "jest",
