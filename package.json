@@ -1,7 +1,7 @@
 {
   "name": "jsfitsio",
   "description": "FITS I/O javascript library.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "keywords": ["FITS", "FITS I/O", "FITS in a browser", "astronomy", "astrophysics", "science", "data format"],
   "author": "Fabrizio Giordano (fab77)",
   "license": "GPL-3.0-only",
